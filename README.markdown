@@ -1,6 +1,6 @@
 # Diglett -- The indexing subsystem for Chocolat
 
-![](http://i.imgur.com/kpxCh.git)
+![](http://i.imgur.com/kpxCh.gif)
 
 ## License
 
