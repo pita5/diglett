@@ -1,5 +1,7 @@
 # Diglett -- The indexing subsystem for Chocolat
 
+![](http://i.imgur.com/kpxCh.git)
+
 ## License
 
 Diglett tainted by code from the GPL licensed [Exuberant Ctags](http://ctags.sourceforce.net). Sorry.
