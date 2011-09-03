@@ -1,0 +1,61 @@
+Exuberant Ctags gives us:
+	http://ctags.sourceforge.net/languages.html
+
+Remaining is:
+
+ActionScript
+   http://vizsage.com/blog/2007/07/how-to-use-exuberant-ctags-with.html
+Ada
+   Included in etags (probably crap).
+   Possibly included in exuberantctags (conflicting reports).
+APL
+AppleScript
+Arc
+Batch
+Boo
+Clojure
+CoffeeScript
+CSS
+D
+Dylan
+F#
+Factor
+Forth
+F-Script
+Go
+   https://bitbucket.org/sigpipe/gotags/
+   https://bitbucket.org/scriptdevil/egotags/   [etags]
+   https://github.com/AlexCombas/Tago           [etags]
+   https://github.com/lyosha/ctags-go
+Groovy
+HAML
+Haskell
+IO
+JSON
+Latex
+   http://vim-taglist.sourceforge.net/extend.html
+Lemon
+Lex
+Markdown
+Nemerle
+Nu
+Objective-C
+	https://github.com/mcormier/ctags-ObjC-5.8.1
+Objective-J
+OCaml
+Oz
+Pike
+PostScript
+Prolog
+R
+Ragel
+Sass
+Scala
+   http://scala-programming-language.1934581.n4.nabble.com/Simple-ctags-etags-support-td1939562.html
+Sed
+Self
+SLang
+Smalltalk
+XML
+YAML
+
