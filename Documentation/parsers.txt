@@ -10,17 +10,27 @@ Ada
    Possibly included in exuberantctags (conflicting reports).
 APL
 AppleScript
+   http://www.cocoabits.com/TmCodeBrowser/
 Arc
 Batch
 Boo
 Clojure
+   http://stackoverflow.com/questions/1481842/clojure-emacs-etags [etags]
 CoffeeScript
 CSS
+   https://github.com/fishman/ctags
+   http://scie.nti.st/2006/12/22/how-to-add-css-support-to-ctags
+   http://aur.archlinux.org/packages.php?ID=36661
 D
+   http://www.digitalmars.com/pnews/read.php?server=news.digitalmars.com&group=digitalmars.D.announce&artnum=18248
+   https://github.com/Dubhead/d2tags
+   http://www.digitalmars.com/d/archives/digitalmars/D/Exuberant_Ctags_Support_for_D_51878.html
 Dylan
 F#
+   (http://www.cs.ru.nl/~tews/otags/) ?
 Factor
 Forth
+   http://www.freak-search.com/en/thread/5024334/exuberant_ctags_for_forth
 F-Script
 Go
    https://bitbucket.org/sigpipe/gotags/
@@ -28,34 +38,41 @@ Go
    https://github.com/AlexCombas/Tago           [etags]
    https://github.com/lyosha/ctags-go
 Groovy
-HAML
+HAML             !
 Haskell
+   http://haskell.org/ghc/docs/6.10.2/html/users_guide/utils.html#hasktags
 IO
-JSON
+JavaScript
+   https://github.com/evilpie/jsctags
 Latex
    http://vim-taglist.sourceforge.net/extend.html
-Lemon
-Lex
-Markdown
+Lemon            !
+Lex              !
+Markdown         !
 Nemerle
 Nu
 Objective-C
+   https://github.com/fishman/ctags
 	https://github.com/mcormier/ctags-ObjC-5.8.1
 Objective-J
 OCaml
+   http://www.cs.ru.nl/~tews/otags/
 Oz
 Pike
+   http://www.gotpike.org/PikeWiki/index.pike?page=PikeTools/TextMate
 PostScript
 Prolog
-R
-Ragel
+   http://contraintes.inria.fr/~soliman/gprolog.ctags
+R                 !
+Ragel             !
 Sass
 Scala
    http://scala-programming-language.1934581.n4.nabble.com/Simple-ctags-etags-support-td1939562.html
 Sed
 Self
-SLang
 Smalltalk
+   https://github.com/mathk/gst-ctags
 XML
+   http://pythonwise.blogspot.com/2011/03/adding-xml-support-to-ctags.html
 YAML
 
