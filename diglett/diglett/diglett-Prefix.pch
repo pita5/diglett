@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'diglett' target in the 'diglett' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+#endif
