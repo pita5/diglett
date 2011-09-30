@@ -1,6 +1,7 @@
 Use NSDistributedNotificationCenter for comms, with an object that's Chocolat's pid.
 
 >>> WHAT SHOULD WE DO about untitled documents that have databases that live in :memory: ? <<<
+Stick em in NSTemporaryDirectory?
 
 
 
