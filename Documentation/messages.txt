@@ -1,0 +1,37 @@
+Use NSDistributedNotificationCenter for comms, with an object that's Chocolat's pid.
+
+>>> WHAT SHOULD WE DO about untitled documents that have databases that live in :memory: ? <<<
+
+
+
+Messages from Chocolat => Diglett
+
+	project.open { project_identifier }
+		Open a project ith project_identifier
+	
+	project.suspend { project_identifier }
+		Suspend any indexing behaviour
+		
+	project.resume { project_identifier }
+		Resume any indexing behaviour
+	
+	project.rescan { project_identifier }
+		Force diglett to rescan the project for changes.
+	
+	project.reindex { project_identifier }
+		Force diglett to drop the tables for project_identifier, vacuum, and rescan it
+	
+	project.discard { project_identifer }
+		Force diglett to drop the tables for project_identifier, vacuum, and close the project
+	
+	project.close { project_identifier }
+		Suspend indexing and close the project.
+	
+	file.index { path, project_identifier, unique_job_identifier, unique_job_timestamp, contents, language }
+		Force diglett to index a file, ignoring its representation on disk, and instead taking a contents string
+	
+Messages from Diglett => Chocolat
+	
+	file.did-index { path, project_identifier, unique_job_identifier, unique_job_timestamp, language }
+		Sent after a file.index has finished. Prompts Chocolat to refresh the Navigator, etc.
+
