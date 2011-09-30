@@ -20,4 +20,11 @@
     return self;
 }
 
+- (NSData *)compressString:(NSString *)string {
+    
+}
+- (NSString *)decompressData;(NSData *)data {
+    
+}
+
 @end

@@ -14,41 +14,74 @@
 {
     self = [super init];
     if (self) {
-        // Initialization code here.
+        // A map from project identifier UUIDs to CHProjects
+        projectMap = [[NSMutableDictionary alloc] init];
     }
     
     return self;
 }
 
+- (id)projectForArgs:(NSDictionary *)args {
+    // project_identifier
+    NSString *projectIdentifier = [args valueForKey:@"project_identifier"];
+    return [projectMap objectForKey:projectIdentifier];
+}
+
+#pragma mark Input Messages
+
 - (void)project_open:(NSDictionary *)args { // { project_identifier }
-// Open a project with project_identifier
+    
+    // Open a project with project_identifier
+    
+    // Is there a project for this already?
+    if ([self projectForArgs:args])
+        return;
+    
+    CHProject *project = [[CHProject alloc] initWithArgs:args];
+    if (project)
+        [projectMap setValue:project forKey:[args valueForKey:@"project_identifier"]];
 }
 
 - (void)project_suspend:(NSDictionary *)args { // { project_identifier }
-//Suspend any indexing behaviour
+    //Suspend any indexing behaviour
+    
+    [[self projectForMessageArgs:args] suspend];
 }
 
 - (void)project_resume:(NSDictionary *)args { // { project_identifier }
-//Resume any indexing behaviour
+    //Resume any indexing behaviour
+    
+    [[self projectForMessageArgs:args] resume];
 }
 
 - (void)project_rescan:(NSDictionary *)args { // { project_identifier }
-//Force diglett to rescan the project for changes.
+    //Force diglett to rescan the project for changes.
+    
+    [[self projectForMessageArgs:args] rescan];
 }
 
 - (void)project_reindex:(NSDictionary *)args { // { project_identifier }
-//Force diglett to drop the tables for project_identifier, vacuum, and rescan it
+    //Force diglett to drop the tables for project_identifier, vacuum, and rescan it
+    
+    [[self projectForMessageArgs:args] reindex];
 }
 
 - (void)project_discard:(NSDictionary *)args { // { project_identifer }
-//Force diglett to drop the tables for project_identifier, vacuum, and close the project
+    //Force diglett to drop the tables for project_identifier, vacuum, and close the project
+    
+    [[self projectForMessageArgs:args] discard];
 }
 
 - (void)project_close:(NSDictionary *)args { // { project_identifier }
-//Suspend indexing and close the project.
+    //Suspend indexing and close the project.
+    
+    [[self projectForMessageArgs:args] close];
+    [projectMap removeObjectForKey:[self projectForMessageArgs:args]];
 }
 - (void)file_index:(NSDictionary *)args { // { path, project_identifier, unique_job_identifier, unique_job_timestamp, contents, language }
 //Force diglett to index a file, ignoring its representation on disk, and instead taking a contents string
+    
+    [[self projectForMessageArgs:args] forceIndexFile:[args valueForKey:@"path"] args:args];
 }
 
 #pragma mark Messages from Diglett => Chocolat

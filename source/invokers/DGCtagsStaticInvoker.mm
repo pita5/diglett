@@ -55,16 +55,6 @@ extern "C" void DGDestroyTagEntry(const tagEntryInfo *const copytag) {
 
 @implementation DGCtagsStaticInvoker
 
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        // Initialization code here.
-    }
-    
-    return self;
-}
-
 - (std::vector<tagEntryInfo*>)parseFileContents:(NSString *)contents ctagsLanguage:(NSString *)ctagsLanguage;
 {
     // Put contents in a CHTemporaryFile

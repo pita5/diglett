@@ -10,7 +10,7 @@
 
 @interface DGController : NSObject
 {
-    
+    NSMutableDictionary *projectMap;
 }
 
 - (void)project_open:(NSDictionary *)args; // { project_identifier }

@@ -12,6 +12,13 @@
 {
     NSString *directory;
     NSString *identifier;
+    
+    NSString *indexDBPath;
+    CHIndexDatabase *indexDB;
+    
+    NSOperationQueue
+    
+    dispatch_group_t workGroup;
 }
 
 @end

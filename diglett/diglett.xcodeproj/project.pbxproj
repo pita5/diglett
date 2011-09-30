@@ -74,6 +74,8 @@
 		75E5685814353C5500174E82 /* DGScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685714353C5500174E82 /* DGScanner.m */; };
 		75E5685B14353C6F00174E82 /* DGProject.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685A14353C6F00174E82 /* DGProject.m */; };
 		75E5685E1435411400174E82 /* DGCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685D1435411400174E82 /* DGCompressor.m */; };
+		75E5686814361CD700174E82 /* DGIndexer.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5686714361CD700174E82 /* DGIndexer.m */; };
+		75E5686B14361CF200174E82 /* DGCtagsIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 75E5686A14361CF100174E82 /* DGCtagsIndexer.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -190,6 +192,10 @@
 		75E5685A14353C6F00174E82 /* DGProject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGProject.m; sourceTree = "<group>"; };
 		75E5685C1435411400174E82 /* DGCompressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGCompressor.h; sourceTree = "<group>"; };
 		75E5685D1435411400174E82 /* DGCompressor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGCompressor.m; sourceTree = "<group>"; };
+		75E5686614361CD700174E82 /* DGIndexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGIndexer.h; sourceTree = "<group>"; };
+		75E5686714361CD700174E82 /* DGIndexer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGIndexer.m; sourceTree = "<group>"; };
+		75E5686914361CF100174E82 /* DGCtagsIndexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGCtagsIndexer.h; sourceTree = "<group>"; };
+		75E5686A14361CF100174E82 /* DGCtagsIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DGCtagsIndexer.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -253,6 +259,7 @@
 			children = (
 				75E5685114353BD100174E82 /* ctags */,
 				7573E2D81433D86B00846BA9 /* client */,
+				75E5686514361CC000174E82 /* indexers */,
 				7573E2DB1433D86B00846BA9 /* invokers */,
 				7573E2DC1433D86B00846BA9 /* parsers */,
 				7573E4031435123A00846BA9 /* fillers */,
@@ -391,6 +398,17 @@
 			name = ctags;
 			sourceTree = "<group>";
 		};
+		75E5686514361CC000174E82 /* indexers */ = {
+			isa = PBXGroup;
+			children = (
+				75E5686614361CD700174E82 /* DGIndexer.h */,
+				75E5686714361CD700174E82 /* DGIndexer.m */,
+				75E5686914361CF100174E82 /* DGCtagsIndexer.h */,
+				75E5686A14361CF100174E82 /* DGCtagsIndexer.mm */,
+			);
+			path = indexers;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -506,6 +524,8 @@
 				75E5685814353C5500174E82 /* DGScanner.m in Sources */,
 				75E5685B14353C6F00174E82 /* DGProject.m in Sources */,
 				75E5685E1435411400174E82 /* DGCompressor.m in Sources */,
+				75E5686814361CD700174E82 /* DGIndexer.m in Sources */,
+				75E5686B14361CF200174E82 /* DGCtagsIndexer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

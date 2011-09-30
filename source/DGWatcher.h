@@ -11,6 +11,7 @@
 @interface DGWatcher : NSObject
 {
     CHProject *project;
+    CHFileTrackingCenter *center;
 }
 
 @end
