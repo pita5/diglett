@@ -11,8 +11,6 @@
 		7573E2CD1433CC0A00846BA9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7573E2CC1433CC0A00846BA9 /* main.m */; };
 		7573E2D11433CC0A00846BA9 /* diglett.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7573E2D01433CC0A00846BA9 /* diglett.1 */; };
 		7573E2DD1433D86B00846BA9 /* DGClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 7573E2DA1433D86B00846BA9 /* DGClient.m */; };
-		7573E2E01433D8B800846BA9 /* DGInvoker.m in Sources */ = {isa = PBXBuildFile; fileRef = 7573E2DF1433D8B800846BA9 /* DGInvoker.m */; };
-		7573E2E31433D8EA00846BA9 /* DGParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 7573E2E21433D8EA00846BA9 /* DGParser.m */; };
 		7573E3811434A5B000846BA9 /* DGController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7573E3801434A5B000846BA9 /* DGController.m */; };
 		7573E3CB1434BB3A00846BA9 /* ant.c in Sources */ = {isa = PBXBuildFile; fileRef = 7573E3821434BB2700846BA9 /* ant.c */; };
 		7573E3CC1434BB3A00846BA9 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 7573E3831434BB2800846BA9 /* args.c */; };
@@ -67,15 +65,14 @@
 		7573E3FD1434BB3A00846BA9 /* vim.c in Sources */ = {isa = PBXBuildFile; fileRef = 7573E3C71434BB3900846BA9 /* vim.c */; };
 		7573E3FE1434BB3A00846BA9 /* vstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 7573E3C81434BB3A00846BA9 /* vstring.c */; };
 		7573E3FF1434BB3A00846BA9 /* yacc.c in Sources */ = {isa = PBXBuildFile; fileRef = 7573E3CA1434BB3A00846BA9 /* yacc.c */; };
-		7573E4021434C07A00846BA9 /* DGCtagsStaticInvoker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7573E4011434C07A00846BA9 /* DGCtagsStaticInvoker.mm */; };
-		7573E4061435129400846BA9 /* DGFiller.m in Sources */ = {isa = PBXBuildFile; fileRef = 7573E4051435129400846BA9 /* DGFiller.m */; };
-		7573E4091435131100846BA9 /* DGCtagsStaticFiller.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7573E4081435131000846BA9 /* DGCtagsStaticFiller.mm */; };
 		75E5685514353C2E00174E82 /* DGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685414353C2E00174E82 /* DGWatcher.m */; };
 		75E5685814353C5500174E82 /* DGScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685714353C5500174E82 /* DGScanner.m */; };
 		75E5685B14353C6F00174E82 /* DGProject.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685A14353C6F00174E82 /* DGProject.m */; };
 		75E5685E1435411400174E82 /* DGCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685D1435411400174E82 /* DGCompressor.m */; };
 		75E5686814361CD700174E82 /* DGIndexer.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5686714361CD700174E82 /* DGIndexer.m */; };
 		75E5686B14361CF200174E82 /* DGCtagsIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 75E5686A14361CF100174E82 /* DGCtagsIndexer.mm */; };
+		75E5687014364C0300174E82 /* CHTemporaryFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5686F14364C0300174E82 /* CHTemporaryFile.m */; };
+		75E5687314364C3500174E82 /* NSString+Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5687214364C3500174E82 /* NSString+Utilities.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -99,10 +96,6 @@
 		7573E2D01433CC0A00846BA9 /* diglett.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = diglett.1; sourceTree = "<group>"; };
 		7573E2D91433D86B00846BA9 /* DGClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGClient.h; sourceTree = "<group>"; };
 		7573E2DA1433D86B00846BA9 /* DGClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGClient.m; sourceTree = "<group>"; };
-		7573E2DE1433D8B800846BA9 /* DGInvoker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGInvoker.h; sourceTree = "<group>"; };
-		7573E2DF1433D8B800846BA9 /* DGInvoker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGInvoker.m; sourceTree = "<group>"; };
-		7573E2E11433D8EA00846BA9 /* DGParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGParser.h; sourceTree = "<group>"; };
-		7573E2E21433D8EA00846BA9 /* DGParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGParser.m; sourceTree = "<group>"; };
 		7573E37F1434A5B000846BA9 /* DGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGController.h; sourceTree = "<group>"; };
 		7573E3801434A5B000846BA9 /* DGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGController.m; sourceTree = "<group>"; };
 		7573E3821434BB2700846BA9 /* ant.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ant.c; path = "../Libraries/exuberant-ctags/ant.c"; sourceTree = "<group>"; };
@@ -178,12 +171,6 @@
 		7573E3C81434BB3A00846BA9 /* vstring.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vstring.c; path = "../Libraries/exuberant-ctags/vstring.c"; sourceTree = "<group>"; };
 		7573E3C91434BB3A00846BA9 /* vstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vstring.h; path = "../Libraries/exuberant-ctags/vstring.h"; sourceTree = "<group>"; };
 		7573E3CA1434BB3A00846BA9 /* yacc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = yacc.c; path = "../Libraries/exuberant-ctags/yacc.c"; sourceTree = "<group>"; };
-		7573E4001434C07A00846BA9 /* DGCtagsStaticInvoker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGCtagsStaticInvoker.h; sourceTree = "<group>"; };
-		7573E4011434C07A00846BA9 /* DGCtagsStaticInvoker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DGCtagsStaticInvoker.mm; sourceTree = "<group>"; };
-		7573E4041435129400846BA9 /* DGFiller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGFiller.h; sourceTree = "<group>"; };
-		7573E4051435129400846BA9 /* DGFiller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGFiller.m; sourceTree = "<group>"; };
-		7573E4071435131000846BA9 /* DGCtagsStaticFiller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGCtagsStaticFiller.h; sourceTree = "<group>"; };
-		7573E4081435131000846BA9 /* DGCtagsStaticFiller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DGCtagsStaticFiller.mm; sourceTree = "<group>"; };
 		75E5685314353C2E00174E82 /* DGWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGWatcher.h; sourceTree = "<group>"; };
 		75E5685414353C2E00174E82 /* DGWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGWatcher.m; sourceTree = "<group>"; };
 		75E5685614353C5500174E82 /* DGScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGScanner.h; sourceTree = "<group>"; };
@@ -196,6 +183,11 @@
 		75E5686714361CD700174E82 /* DGIndexer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGIndexer.m; sourceTree = "<group>"; };
 		75E5686914361CF100174E82 /* DGCtagsIndexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGCtagsIndexer.h; sourceTree = "<group>"; };
 		75E5686A14361CF100174E82 /* DGCtagsIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DGCtagsIndexer.mm; sourceTree = "<group>"; };
+		75E5686D14362A8E00174E82 /* exuberant-options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "exuberant-options.h"; sourceTree = "<group>"; };
+		75E5686E14364C0300174E82 /* CHTemporaryFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CHTemporaryFile.h; path = ../../../Code/CHTemporaryFile.h; sourceTree = "<group>"; };
+		75E5686F14364C0300174E82 /* CHTemporaryFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CHTemporaryFile.m; path = ../../../Code/CHTemporaryFile.m; sourceTree = "<group>"; };
+		75E5687114364C3400174E82 /* NSString+Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+Utilities.h"; path = "../../../Code/NSString+Utilities.h"; sourceTree = "<group>"; };
+		75E5687214364C3500174E82 /* NSString+Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+Utilities.m"; path = "../../../Code/NSString+Utilities.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -257,12 +249,13 @@
 		7573E2D71433D86B00846BA9 /* source */ = {
 			isa = PBXGroup;
 			children = (
+				75E5687114364C3400174E82 /* NSString+Utilities.h */,
+				75E5687214364C3500174E82 /* NSString+Utilities.m */,
+				75E5686E14364C0300174E82 /* CHTemporaryFile.h */,
+				75E5686F14364C0300174E82 /* CHTemporaryFile.m */,
 				75E5685114353BD100174E82 /* ctags */,
 				7573E2D81433D86B00846BA9 /* client */,
 				75E5686514361CC000174E82 /* indexers */,
-				7573E2DB1433D86B00846BA9 /* invokers */,
-				7573E2DC1433D86B00846BA9 /* parsers */,
-				7573E4031435123A00846BA9 /* fillers */,
 				7573E37F1434A5B000846BA9 /* DGController.h */,
 				7573E3801434A5B000846BA9 /* DGController.m */,
 				75E5685914353C6F00174E82 /* DGProject.h */,
@@ -285,37 +278,6 @@
 				7573E2DA1433D86B00846BA9 /* DGClient.m */,
 			);
 			path = client;
-			sourceTree = "<group>";
-		};
-		7573E2DB1433D86B00846BA9 /* invokers */ = {
-			isa = PBXGroup;
-			children = (
-				7573E2DE1433D8B800846BA9 /* DGInvoker.h */,
-				7573E2DF1433D8B800846BA9 /* DGInvoker.m */,
-				7573E4001434C07A00846BA9 /* DGCtagsStaticInvoker.h */,
-				7573E4011434C07A00846BA9 /* DGCtagsStaticInvoker.mm */,
-			);
-			path = invokers;
-			sourceTree = "<group>";
-		};
-		7573E2DC1433D86B00846BA9 /* parsers */ = {
-			isa = PBXGroup;
-			children = (
-				7573E2E11433D8EA00846BA9 /* DGParser.h */,
-				7573E2E21433D8EA00846BA9 /* DGParser.m */,
-			);
-			path = parsers;
-			sourceTree = "<group>";
-		};
-		7573E4031435123A00846BA9 /* fillers */ = {
-			isa = PBXGroup;
-			children = (
-				7573E4041435129400846BA9 /* DGFiller.h */,
-				7573E4051435129400846BA9 /* DGFiller.m */,
-				7573E4071435131000846BA9 /* DGCtagsStaticFiller.h */,
-				7573E4081435131000846BA9 /* DGCtagsStaticFiller.mm */,
-			);
-			path = fillers;
 			sourceTree = "<group>";
 		};
 		75E5685114353BD100174E82 /* ctags */ = {
@@ -405,6 +367,7 @@
 				75E5686714361CD700174E82 /* DGIndexer.m */,
 				75E5686914361CF100174E82 /* DGCtagsIndexer.h */,
 				75E5686A14361CF100174E82 /* DGCtagsIndexer.mm */,
+				75E5686D14362A8E00174E82 /* exuberant-options.h */,
 			);
 			path = indexers;
 			sourceTree = "<group>";
@@ -461,8 +424,6 @@
 			files = (
 				7573E2CD1433CC0A00846BA9 /* main.m in Sources */,
 				7573E2DD1433D86B00846BA9 /* DGClient.m in Sources */,
-				7573E2E01433D8B800846BA9 /* DGInvoker.m in Sources */,
-				7573E2E31433D8EA00846BA9 /* DGParser.m in Sources */,
 				7573E3811434A5B000846BA9 /* DGController.m in Sources */,
 				7573E3CB1434BB3A00846BA9 /* ant.c in Sources */,
 				7573E3CC1434BB3A00846BA9 /* args.c in Sources */,
@@ -517,15 +478,14 @@
 				7573E3FD1434BB3A00846BA9 /* vim.c in Sources */,
 				7573E3FE1434BB3A00846BA9 /* vstring.c in Sources */,
 				7573E3FF1434BB3A00846BA9 /* yacc.c in Sources */,
-				7573E4021434C07A00846BA9 /* DGCtagsStaticInvoker.mm in Sources */,
-				7573E4061435129400846BA9 /* DGFiller.m in Sources */,
-				7573E4091435131100846BA9 /* DGCtagsStaticFiller.mm in Sources */,
 				75E5685514353C2E00174E82 /* DGWatcher.m in Sources */,
 				75E5685814353C5500174E82 /* DGScanner.m in Sources */,
 				75E5685B14353C6F00174E82 /* DGProject.m in Sources */,
 				75E5685E1435411400174E82 /* DGCompressor.m in Sources */,
 				75E5686814361CD700174E82 /* DGIndexer.m in Sources */,
 				75E5686B14361CF200174E82 /* DGCtagsIndexer.mm in Sources */,
+				75E5687014364C0300174E82 /* CHTemporaryFile.m in Sources */,
+				75E5687314364C3500174E82 /* NSString+Utilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

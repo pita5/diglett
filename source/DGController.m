@@ -29,6 +29,26 @@
 
 #pragma mark Input Messages
 
+- (void)didReceiveNotification:(NSNotification *)notif {
+    NSString *name = [notif name];
+    if ([name isEqual:@"CHDiglettProjectOpen"])
+        [self project_open:[notif userInfo]];
+    else if ([name isEqual:@"CHDiglettProjectSuspend"])
+        [self project_suspend:[notif userInfo]];
+    else if ([name isEqual:@"CHDiglettProjectResume"])
+        [self project_resume:[notif userInfo]];
+    else if ([name isEqual:@"CHDiglettProjectRescan"])
+        [self project_rescan:[notif userInfo]];
+    else if ([name isEqual:@"CHDiglettProjectReindex"])
+        [self project_reindex:[notif userInfo]];
+    else if ([name isEqual:@"CHDiglettProjectDiscard"])
+        [self project_discard:[notif userInfo]];
+    else if ([name isEqual:@"CHDiglettProjectClose"])
+        [self project_close:[notif userInfo]];
+    else if ([name isEqual:@"CHDiglettFileIndex"])
+        [self file_index:[notif userInfo]];
+}
+
 - (void)project_open:(NSDictionary *)args { // { project_identifier }
     
     // Open a project with project_identifier
@@ -79,7 +99,7 @@
     [projectMap removeObjectForKey:[self projectForMessageArgs:args]];
 }
 - (void)file_index:(NSDictionary *)args { // { path, project_identifier, unique_job_identifier, unique_job_timestamp, contents, language }
-//Force diglett to index a file, ignoring its representation on disk, and instead taking a contents string
+    //Force diglett to index a file, ignoring its representation on disk, and instead taking a contents string
     
     [[self projectForMessageArgs:args] forceIndexFile:[args valueForKey:@"path"] args:args];
 }
@@ -87,11 +107,11 @@
 #pragma mark Messages from Diglett => Chocolat
 
 - (void)send_file_did_index:(NSDictionary *)args { // { path, project_identifier, unique_job_identifier, unique_job_timestamp, language }
-//Sent after a file.index has finished. Prompts Chocolat to refresh the Navigator, etc.
+    //Sent after a file.index has finished. Prompts Chocolat to refresh the Navigator, etc.
 }
 
 - (void)send_project_is_indexing:(NSDictionary *)args { // 
-// Sent while the project is being indexed
+    // Sent while the project is being indexed
 }
 
 

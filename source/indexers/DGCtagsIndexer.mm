@@ -14,9 +14,27 @@ extern "C" {
     void DGDestroyTagEntry(const tagEntryInfo *const copytag);
 }
 
+// Ctags's main function
 extern int ctags_main(int argc, char **argv);
 
+// The queue that ctags pushes results into
 std::deque<tagEntryInfo*> DGExCtag_TagEntryQueue;
+
+// Turn a C string into an NSString string
+static NSString *DGNSString(const char *ustr) { return ustr ? [NSString stringWithUTF8String:ustr] : @""; }
+
+typedef std::vector<tagEntryInfo*> tag_vector;
+
+void DGEntryPrint(tagEntryInfo entry);
+
+
+@interface DGCtagsIndexer ()
+
+- (tag_vector)parseFileContentsWithCtagsLanguage:(NSString *)ctagsLanguage;
+- (tag_vector)parseFilePath:(NSString *)inputPath withCtagsLanguage:(NSString *)ctagsLanguage;
+- (void)fillFrom:(tag_vector)entries;
+
+@end
 
 @implementation DGCtagsIndexer
 
@@ -32,26 +50,48 @@ std::deque<tagEntryInfo*> DGExCtag_TagEntryQueue;
 
 - (void)index {
     
+    // Get the language
+    NSString *ctagsLanguage = [self ctagsLanguage];
+    
+    // Parse the file
+    tag_vector tags =
+        contents ? [self parseFileContentsCtagsLanguage:ctagsLanguage]
+                : [self parseFilePath:path withCtagsLanguage:ctagsLanguage finishedBlock:NULL];
+    
+//    [self fillFrom:tags];
 }
 
-
-- (std::vector<tagEntryInfo*>)parseFileContents:(NSString *)contents ctagsLanguage:(NSString *)ctagsLanguage;
+- (void)parseFileContentsWithCtagsLanguage:(NSString *)ctagsLanguage
 {
     // Put contents in a CHTemporaryFile
-    return [self parseFilePath:temppath ctagsLanguage:ctagsLanguage];
-}
-- (std::vector<tagEntryInfo*>)parseFilePath:(NSString *)path ctagsLanguage:(NSString *)ctagsLanguage;
-{
-    std::vector<tagEntryInfo*> rv;
+    CHTemporaryFile *tempfile = [[CHTemporaryFile alloc] init];
+	
+    if (tempfile)
+    {
+        NSError *err = nil;
+        BOOL worked = [contents writeToFile:tempfile.path atomically:NO encoding:NSUTF8StringEncoding error:&err];
+        if (!worked)
+            return;
+        
+        path = tempfile.path;
+    }
     
+    return [self parseFilePath:temppath ctagsLanguage:ctagsLanguage finishedBlock:^{
+        [tempfile unlink];
+    }];
+}
+- (void)parseFilePath:(NSString *)inputPath withCtagsLanguage:(NSString *)ctagsLanguage finishedBlock:(dispatch_block_t)finishedBlock
+{    
     extern dispatch_queue_t DGCtagsQueue;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         DGCtagsQueue = dispatch_queue_create(NULL, NULL);
     });
     
-    dispatch_sync(DGCtagsQueue, ^{
-        
+    dispatch_group_async([project indexingGroup], DGCtagsQueue, ^{
+
+        tag_vector rv;
+       
         const char * args[] = {
             "ctags",
             "--extra=+fq",
@@ -60,9 +100,10 @@ std::deque<tagEntryInfo*> DGExCtag_TagEntryQueue;
             [[NSString stringWithFormat:@"--%@-kinds=+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", ctagsLanguage] UTF8String],
             [[NSString stringWithFormat:@"--language-force=%@", ctagsLanguage] UTF8String],
             "--sort=no",
-            "-L", [path UTF8String],
+            "-L", [inputPath UTF8String],
             NULL
             // put --langdef directives here, once gnuregex is working
+            // #include "exuberant-options.h"
         };
         
         ctags_main(sizeof(args) / sizeof(const char *), args);
@@ -70,46 +111,17 @@ std::deque<tagEntryInfo*> DGExCtag_TagEntryQueue;
         std::copy(DGExCtag_TagEntryQueue.end(), DGExCtag_TagEntryQueue.end(), rv.begin());
         DGExCtag_TagEntryQueue.clear();
         
+        [self fillFrom:rv];
     });
     
     return rv;
 }
 
-
-
-static NSString *DGNSString(const char *ustr) {
-    return ustr ? [NSString stringWithUTF8String:ustr] : @"";
-}
-
-void DGEntryPrint(tagEntryInfo entry) {
-    NSLog(
-          @"lineNumberEntry: %d\n"
-          @"lineNumber: %ul\n"
-          @"language: %@\n"
-          @"isFileScope: %d\n"
-          @"isFileEntry: %d\n"
-          @"truncateLine: %d\n"
-          @"sourceFileName: %@\n"
-          @"name: %@\n"
-          @"kindName: %@\n"
-          @"kind: %d\n"
-          
-          @"access: %@\n"
-          @"fileScope: %@\n"
-          @"implementation: %@\n"
-          @"inheritance: %@\n"
-          @"scope 0: %@\n"
-          @"scope 1: %@\n"
-          @"signature: %@\n"
-          @"typeRef 0: %@\n"
-          @"typeRef 1: %@\n", entry.lineNumberEntry, entry.lineNumber, DGNSString(entry.language), entry.isFileScope, entry.isFileEntry, entry.truncateLine, DGNSString(entry.sourceFileName), DGNSString(entry.name), DGNSString(entry.kindName), entry.kind, DGNSString(entry.extensionFields.access), DGNSString(entry.extensionFields.fileScope), DGNSString(entry.extensionFields.implementation), DGNSString(entry.extensionFields.inheritance), DGNSString(entry.extensionFields.scope[0]), DGNSString(entry.extensionFields.scope[1]), DGNSString(entry.extensionFields.signature), DGNSString(entry.extensionFields.typeRef[0]), DGNSString(entry.extensionFields.typeRef[1]));
-}
-
-- (void)fillFrom:(std::vector<tagEntryInfo*>)entries {
+- (void)fillFrom:(tag_vector)entries {
     
     __block int64_t pass_id = -1;
 	
-	dispatch_sync(db.queue, ^{
+	dispatch_group_async([project indexingGroup], db.queue, ^{
 		if (!db.db)
 			return;
         
@@ -129,7 +141,7 @@ void DGEntryPrint(tagEntryInfo entry) {
 		pass_id = [db.db lastInsertRowId];
 		NSNumber *minusOne = [NSNumber numberWithInt:-1];
 		
-		for (std::vector<tagEntryInfo*>::iterator it = entries.begin(), et = entries.end(); it != et; ++it)
+		for (tag_vector::iterator it = entries.begin(), et = entries.end(); it != et; ++it)
 		{
 			tagEntryInfo tag = **it;
             
@@ -163,14 +175,16 @@ void DGEntryPrint(tagEntryInfo entry) {
              [NSNumber numberWithLongLong:lineNumber], minusOne, minusOne
              
              ];
-		}
+
+		    DGDestroyTagEntry(*it);
+        }
         
         commitcount++;
 		[db.db commit];
         
+        if (finishedBlock)
+            dispatch_async(dispatch_get_main_queue(), finishedBlock);
 	});
-	
-    DGDestroyTagEntry(tags);
 }
 
 
@@ -209,4 +223,28 @@ extern "C" void DGDestroyTagEntry(const tagEntryInfo *const copytag) {
     free((void*)(copytag->extensionFields.typeRef[1]));
     
     free((void*)copytag);
+}
+
+void DGEntryPrint(tagEntryInfo entry) {
+    NSLog(
+          @"lineNumberEntry: %d\n"
+          @"lineNumber: %ul\n"
+          @"language: %@\n"
+          @"isFileScope: %d\n"
+          @"isFileEntry: %d\n"
+          @"truncateLine: %d\n"
+          @"sourceFileName: %@\n"
+          @"name: %@\n"
+          @"kindName: %@\n"
+          @"kind: %d\n"
+          
+          @"access: %@\n"
+          @"fileScope: %@\n"
+          @"implementation: %@\n"
+          @"inheritance: %@\n"
+          @"scope 0: %@\n"
+          @"scope 1: %@\n"
+          @"signature: %@\n"
+          @"typeRef 0: %@\n"
+          @"typeRef 1: %@\n", entry.lineNumberEntry, entry.lineNumber, DGNSString(entry.language), entry.isFileScope, entry.isFileEntry, entry.truncateLine, DGNSString(entry.sourceFileName), DGNSString(entry.name), DGNSString(entry.kindName), entry.kind, DGNSString(entry.extensionFields.access), DGNSString(entry.extensionFields.fileScope), DGNSString(entry.extensionFields.implementation), DGNSString(entry.extensionFields.inheritance), DGNSString(entry.extensionFields.scope[0]), DGNSString(entry.extensionFields.scope[1]), DGNSString(entry.extensionFields.signature), DGNSString(entry.extensionFields.typeRef[0]), DGNSString(entry.extensionFields.typeRef[1]));
 }

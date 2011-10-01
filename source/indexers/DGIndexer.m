@@ -10,6 +10,13 @@
 
 @implementation DGIndexer
 
+@synthesize project;
+@synthesize path;
+@synthesize contents;
+@synthesize language;
+@synthesize rid; // resource_id
+@synthesize completionBlock;
+
 - (id)init
 {
     self = [super init];

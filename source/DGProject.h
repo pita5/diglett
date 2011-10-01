@@ -14,11 +14,31 @@
     NSString *identifier;
     
     NSString *indexDBPath;
-    CHIndexDatabase *indexDB;
+    CHXMainDatabase *indexDB;
     
-    NSOperationQueue
-    
-    dispatch_group_t workGroup;
+    dispatch_group_t indexingGroup;
+    dispatch_source_t scannerSource;
 }
+
+- (id)initWithArgs:(NSDictionary *)args;
+
+- (void)makeSource;
+- (void)open;
+
+- (void)didScanIndexFile:(NSString *)path index:(NSInteger)index ofTotal:(NSInteger)total;
+- (void)watcherDidNotifyForDirectory:(NSString *)directoryPath;
+
+- (void)suspend;
+- (void)resume;
+- (void)rescan;
+- (void)reindex;
+- (void)discard;
+- (void)close;
+
+- (NSArray *)indexerNames;
+- (Class)indexerForName:(NSString *)indexerName;
+
+- (void)forceIndexFile:(NSString *)filePath args:(NSDictionary *)args;
+- (void)indexFileAtPath:(NSString *)path contents:(NSString *)contents language:(NSString *)language withIndexer:(NSString *)indexerName rid:(int64_t)rid;
 
 @end
