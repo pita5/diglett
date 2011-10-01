@@ -811,7 +811,7 @@ static int writeCtagsEntry (const tagEntryInfo *const tag)
 
 
 
-const char * DGStringMallocCopy(const char *str) {
+static const char * DGStringMallocCopy(const char *str) {
     if (!str)
         return NULL;
     size_t len = strlen(str);
@@ -820,7 +820,7 @@ const char * DGStringMallocCopy(const char *str) {
         memcpy(target, str, len);
     return target;
 }
-tagEntryInfo* DGCopyTagEntry(const tagEntryInfo *const tag) {
+static tagEntryInfo* DGCopyTagEntry(const tagEntryInfo *const tag) {
     
 #if 0
     boolean     lineNumberEntry;  /* pattern or line number entry */

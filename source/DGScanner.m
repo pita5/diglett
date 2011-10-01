@@ -55,6 +55,8 @@ BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
 @synthesize indexingCompletionBlock;
 @synthesize hasStopped;
 
+@synthesize project;
+
 - (void)scanDirectory:(NSString *)directory database:(CHXMainDatabase *)database
 {
 	NSLog(@"Scan directory: %@, database: %@", directory, database);

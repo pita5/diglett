@@ -7,6 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "CHXMainDatabase.h"
+
+@class DGScanner;
 
 @interface DGProject : NSObject
 {
@@ -16,8 +19,12 @@
     NSString *indexDBPath;
     CHXMainDatabase *indexDB;
     
+    DGScanner *scanner;
+    
     dispatch_group_t indexingGroup;
     dispatch_source_t scannerSource;
+    
+    NSTimeInterval lastScanned;
 }
 
 - (id)initWithArgs:(NSDictionary *)args;

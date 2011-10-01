@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "DGController.h"
+
 int main(int argc, const char * argv[])
 {
     // Give ourselves less priority (higher nice value)
@@ -18,7 +20,7 @@ int main(int argc, const char * argv[])
         priority = 20;
     setpriority(PRIO_PROCESS, getpid(), priority);
     
-    DGController* controller = [[DGController alloc] init];
+    DGController* controller = [DGController sharedController];
     [[NSDistributedNotificationCenter defaultCenter] addObserver:controller selector:@selector(didReceiveNotification:) name:nil object:@"Diglett"];
     
     [[NSRunLoop currentRunLoop] run];

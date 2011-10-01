@@ -7,6 +7,9 @@
 //
 
 #import "DGProject.h"
+#import "DGScanner.h"
+#import "DGCTagsIndexer.h"
+#import "DGController.h"
 
 static const double delayBetweenSuccessful = 120;
 
@@ -22,9 +25,11 @@ static const double delayBetweenSuccessful = 120;
         indexDBPath = [args valueForKey:@"project_index_database"];
         indexingGroup = dispatch_group_create();
         lastScanned = 0.0;
+        scanner = [[DGScanner alloc] init];
+        scanner.project = self;
         
-        [self scannerSource];
         [self open];
+        [self makeSource];
     }
     
     return self;
@@ -36,10 +41,9 @@ static const double delayBetweenSuccessful = 120;
         if ([NSDate timeIntervalSinceReferenceDate] - lastScanned > delayBetweenSuccessful) {
             
             // Set the last scanned date to something ridiculous, so we can't be invoked again until it finishes
-            lastScanned = [NSDate dateWithTimeIntervalSinceReferenceDate:60 * 60 * 24 * 365 * 10];
+            lastScanned = [[NSDate dateWithTimeIntervalSinceNow:60 * 60 * 24 * 365 * 10] timeIntervalSinceReferenceDate];
             [scanner rescan];
         }
-        
     });
     
     dispatch_source_set_timer(scannerSource, dispatch_time(DISPATCH_TIME_NOW, (delayBetweenSuccessful / 2.0) * NSEC_PER_SEC), 0, 10);
@@ -116,10 +120,8 @@ static const double delayBetweenSuccessful = 120;
         
         [indexDB close];
         
-        [controller removeProject:self];
-    })
-    
-    
+        [[DGController sharedController] removeProject:self];
+    });
 }
 
 - (NSArray *)indexerNames {
@@ -127,7 +129,7 @@ static const double delayBetweenSuccessful = 120;
 }
 - (Class)indexerForName:(NSString *)indexerName {
     if ([indexerName isEqual:@"ctags"])
-        return [DGCTagsIndexer class];
+        return [DGCtagsIndexer class];
 }
 
 - (void)forceIndexFile:(NSString *)filePath args:(NSDictionary *)args {
@@ -138,7 +140,7 @@ static const double delayBetweenSuccessful = 120;
     NSString *language = [args valueForKey:@"language"];
     
     for (NSString *indexerName in [self indexerNames])
-        [self indexFileAtPath:filePath contents:contents langauge:language withIndexer:indexerName rid:-1];
+        [self indexFileAtPath:filePath contents:contents language:language withIndexer:indexerName rid:-1];
 }
 - (void)indexFileAtPath:(NSString *)path contents:(NSString *)contents language:(NSString *)language withIndexer:(NSString *)indexerName rid:(int64_t)rid {
     
@@ -146,10 +148,15 @@ static const double delayBetweenSuccessful = 120;
     indexer.project = self;
     indexer.path = path;
     indexer.contents = contents;
-    indexer.language = langauge;;
+    indexer.language = language;;
     indexer.rid = rid;
     indexer.completionBlock = ^{
         ...
+        
+        // The scanner should give us the index and total so we can call
+        // - (void)didScanIndexFile:(NSString *)path index:(NSInteger)index ofTotal:(NSInteger)total;
+        
+        // Send a notification to the DGController
     };
     
     [indexer index];

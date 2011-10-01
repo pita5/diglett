@@ -7,21 +7,36 @@
 //
 
 #import "DGController.h"
+#import "DGProject.h"
 
 @implementation DGController
+
++ (id)sharedController {
+    static dispatch_once_t onceToken;
+    static id sharedController;
+    dispatch_once(&onceToken, ^{
+        sharedController = [[DGController alloc] init];
+    });
+    return sharedController;
+}
 
 - (id)init
 {
     self = [super init];
     if (self) {
-        // A map from project identifier UUIDs to CHProjects
+        // A map from project identifier UUIDs to DGProject
         projectMap = [[NSMutableDictionary alloc] init];
     }
     
     return self;
 }
+- (void)removeProject:(DGProject *)project {
+    NSArray *keys = [projectMap allKeysForObject:project];
+    if ([keys count])
+        [projectMap removeObjectsForKeys:keys];
+}
 
-- (id)projectForArgs:(NSDictionary *)args {
+- (DGProject *)projectForMessageArgs:(NSDictionary *)args {
     // project_identifier
     NSString *projectIdentifier = [args valueForKey:@"project_identifier"];
     return [projectMap objectForKey:projectIdentifier];
@@ -54,10 +69,10 @@
     // Open a project with project_identifier
     
     // Is there a project for this already?
-    if ([self projectForArgs:args])
+    if ([self projectForMessageArgs:args])
         return;
     
-    CHProject *project = [[CHProject alloc] initWithArgs:args];
+    DGProject *project = [[DGProject alloc] initWithArgs:args];
     if (project)
         [projectMap setValue:project forKey:[args valueForKey:@"project_identifier"]];
 }

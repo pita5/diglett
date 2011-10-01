@@ -8,10 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
+@class DGProject;
+
 @interface DGController : NSObject
 {
     NSMutableDictionary *projectMap;
 }
+
++ (id)sharedController;
+- (DGProject *)projectForMessageArgs:(NSDictionary *)args;
+- (void)didReceiveNotification:(NSNotification *)notif;
+
 
 - (void)project_open:(NSDictionary *)args; // { project_identifier }
 // Open a project with project_identifier

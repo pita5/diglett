@@ -8,10 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-@class CHProject;
+@class DGProject;
 
 @interface DGScanner : NSObject {
-    CHProject *project;
+    DGProject *project;
 }
+
+@property (assign) DGProject *project;
+
+- (void)rescan;
 
 @end

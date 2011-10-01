@@ -8,10 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
+@class DGProject;
+
 @interface DGWatcher : NSObject
 {
-    CHProject *project;
-    CHFileTrackingCenter *center;
+    DGProject *project;
+    //CHFileTrackingCenter *center;
 }
 
 @end

@@ -1,8 +1,10 @@
 #import <Foundation/Foundation.h>
 
+@class DGProject;
+
 @interface DGIndexer : NSObject
 {
-    CHProject *project;
+    DGProject *project;
     NSString *path;
     NSString *contents;
     NSString *language;
@@ -10,7 +12,7 @@
     dispatch_block_t completionBlock;
 }
 
-@property (assign) CHProject *project;
+@property (assign) DGProject *project;
 @property (assign) NSString *path;
 @property (assign) NSString *contents;
 @property (assign) NSString *language;
