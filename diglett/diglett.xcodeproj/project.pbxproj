@@ -78,6 +78,8 @@
 		75E5687C143746AB00174E82 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E56879143746AA00174E82 /* FMResultSet.m */; };
 		75E56881143746C600174E82 /* CHXDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5687E143746C500174E82 /* CHXDatabase.m */; };
 		75E56882143746C600174E82 /* CHXMainDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E56880143746C600174E82 /* CHXMainDatabase.m */; };
+		75E5688514375BD000174E82 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75E5688414375BD000174E82 /* AppKit.framework */; };
+		75E5688714375BDB00174E82 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75E5688614375BDA00174E82 /* SystemConfiguration.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -203,6 +205,9 @@
 		75E5687E143746C500174E82 /* CHXDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CHXDatabase.m; path = ../../../Code/CHXDatabase.m; sourceTree = "<group>"; };
 		75E5687F143746C500174E82 /* CHXMainDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CHXMainDatabase.h; path = ../../../Code/CHXMainDatabase.h; sourceTree = "<group>"; };
 		75E56880143746C600174E82 /* CHXMainDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CHXMainDatabase.m; path = ../../../Code/CHXMainDatabase.m; sourceTree = "<group>"; };
+		75E5688314375B0F00174E82 /* CHThreadNonLocal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CHThreadNonLocal.h; path = ../../../Code/CHThreadNonLocal.h; sourceTree = "<group>"; };
+		75E5688414375BD000174E82 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		75E5688614375BDA00174E82 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -210,6 +215,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75E5688714375BDB00174E82 /* SystemConfiguration.framework in Frameworks */,
+				75E5688514375BD000174E82 /* AppKit.framework in Frameworks */,
 				7573E2CA1433CC0A00846BA9 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -220,6 +227,8 @@
 		7573E2BA1433CC0900846BA9 = {
 			isa = PBXGroup;
 			children = (
+				75E5688614375BDA00174E82 /* SystemConfiguration.framework */,
+				75E5688414375BD000174E82 /* AppKit.framework */,
 				7573E2D71433D86B00846BA9 /* source */,
 				7573E2CB1433CC0A00846BA9 /* diglett */,
 				7573E2C81433CC0A00846BA9 /* Frameworks */,
@@ -264,6 +273,7 @@
 		7573E2D71433D86B00846BA9 /* source */ = {
 			isa = PBXGroup;
 			children = (
+				75E5688314375B0F00174E82 /* CHThreadNonLocal.h */,
 				75E5687D143746C500174E82 /* CHXDatabase.h */,
 				75E5687E143746C500174E82 /* CHXDatabase.m */,
 				75E5687F143746C500174E82 /* CHXMainDatabase.h */,
@@ -525,7 +535,6 @@
 		7573E2D21433CC0A00846BA9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -545,13 +554,13 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = ../../..;
 			};
 			name = Debug;
 		};
 		7573E2D31433CC0A00846BA9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -564,6 +573,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = ../../..;
 			};
 			name = Release;
 		};

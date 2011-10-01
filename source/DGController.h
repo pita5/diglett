@@ -18,6 +18,7 @@
 + (id)sharedController;
 - (DGProject *)projectForMessageArgs:(NSDictionary *)args;
 - (void)didReceiveNotification:(NSNotification *)notif;
+- (void)removeProject:(DGProject *)project;
 
 
 - (void)project_open:(NSDictionary *)args; // { project_identifier }

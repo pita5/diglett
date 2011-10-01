@@ -17,6 +17,10 @@
 @synthesize rid; // resource_id
 @synthesize completionBlock;
 
+- (void)index {
+    
+}
+
 - (id)init
 {
     self = [super init];

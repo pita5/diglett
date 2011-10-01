@@ -19,4 +19,6 @@
 @property (assign) int64_t rid; // resource_id
 @property (copy) dispatch_block_t completionBlock;
 
+- (void)index;
+
 @end

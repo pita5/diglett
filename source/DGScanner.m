@@ -9,6 +9,12 @@
 #import "DGScanner.h"
 
 #include <sys/stat.h>
+#import <AppKit/AppKit.h>
+#import "FMDatabase.h"
+#import "FMResultSet.h"
+
+#import "CHXMainDatabase.h"
+#import "DGProject.h"
 
 #import "CHThreadNonLocal.h"
 
@@ -16,7 +22,7 @@ static inline NSTimeInterval CHTimespecToTimeInterval(struct timespec ts)
 {
 	return (ts.tv_sec - NSTimeIntervalSince1970) + (ts.tv_nsec / 1000000000);
 }
-BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
+static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
 {
 	// Don't index the motherfucking home directory!
 	if ([dirpath isEqual:NSHomeDirectory()])
@@ -57,286 +63,315 @@ BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
 
 @synthesize project;
 
-- (void)scanDirectory:(NSString *)directory database:(CHXMainDatabase *)database
+- (id)init {
+    self = [super init];
+    if (self) {
+        scanqueue = dispatch_queue_create(NULL, NULL);
+    }
+    return self;
+}
+
+- (void)pause {
+    dispatch_suspend(scanqueue);
+}
+- (void)clear {
+    dispatch_release(scanqueue);
+    scanqueue = dispatch_queue_create(NULL, NULL);
+}
+- (void)resume {
+    dispatch_resume(scanqueue);
+}
+
+- (void)rescan {
+    [self scanDirectory:[project directory] database:[project indexDB]];
+}
+- (void)scanDirectory:(NSString *)dirpath database:(CHXMainDatabase *)database
 {
-	NSLog(@"Scan directory: %@, database: %@", directory, database);
-	NSString *dirpath = CHThreadNonLocal([directory stringByStandardizingPath]);
-	directory = dirpath;
-	
-	// Is this a non local volume or removable media?
-	if (!CHDirectoryShouldBeIndexed(dirpath))
-	{
-		NSLog(@"Should not be indexed");
-		return;
-	}
-	
-	if (![directory hasSuffix:@"/"])
-		directory = [directory stringByAppendingString:@"/"];
-	
-	NSMutableSet *allNonignoredPaths = CHThreadNonLocal([[NSMutableSet alloc] init]);
-	NSMutableSet *allIgnoredPaths = CHThreadNonLocal([[NSMutableSet alloc] init]);
-    
-	// NSMutableDictionary{ generator_name, NSMutableDictionary{ path, timestamp } }
-	NSMutableDictionary *passPathTimestampMappings = CHThreadNonLocal([[NSMutableDictionary alloc] init]);
-	
-	
-	//A mapping between document file paths and when they were last changed
-	NSMutableDictionary *documentPathTimestampMappings = CHThreadNonLocal([[NSMutableDictionary alloc] init]);
-	
-	dispatch_group_t group = dispatch_group_create();
-	
-	//Get all resources for that database
-	dispatch_sync(database.queue, ^{
-		if (!database.db)
-			return;
-		
-		NSLog(@"databasePath : %@", [database.db databasePath]);
-		
-		NSString *query = @"SELECT resources.path, resources.is_ignored, passes.timestamp, passes.generator_name"
-        @"FROM resources LEFT JOIN passes ON passes.resource = resources.id"
-        @"WHERE resources.path LIKE ? || '%'";
-		FMResultSet *results = [database.db executeQuery:query, directory];
-		while ([results next]) {
-			
-			NSString *resourcePath = CHThreadNonLocal([[results stringForColumnIndex:0] copy]);
-			BOOL resourceIsIgnored = [results boolForColumnIndex:1];
-			double passTimestamp = [results doubleForColumnIndex:2];
-			NSString *passGenerator = CHThreadNonLocal([[results stringForColumnIndex:3] copy]);
-			
-			if (![resourcePath length])
-				continue;
-			
-			//NSLog(@"resource: %@ | %d | %lf | %@", resourcePath, resourceIsIgnored, passTimestamp, passGenerator);
-			
-			//If the resource has been ignored, then we know it has no passes
-			if (resourceIsIgnored || ![passGenerator length])
-			{
-				[allIgnoredPaths addObject:resourcePath];
-				continue;
-			}
-			
-			dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-				BOOL shouldPerformPass = NO;
-				
-				//If the resource has an associated document, and it has been edited since the last path, then we need to perform a pass
-				NSNumber *documentTimestamp = [documentPathTimestampMappings valueForKey:resourcePath];
-				if (documentTimestamp && [documentTimestamp doubleValue] > passTimestamp)
-					shouldPerformPass = YES;
-				
-				if (!shouldPerformPass)
-				{
-					//If the resource's file has been modified since then, we should perform a pass in that case too
-					NSError *err = nil;
-					
-					//TODO: We should probably use stat(2) for this instead
-					//NSDate *fileTimestamp = [[[NSFileManager defaultManager] attributesOfItemAtPath:resourcePath error:&err] valueForKey:NSFileModificationDate];
-					//double fileTimestampDouble = [fileTimestamp timeIntervalSinceReferenceDate];
-                    
-					struct stat s;
-					int statworked = [resourcePath fileSystemRepresentation] ? lstat([resourcePath fileSystemRepresentation], &s) : -1;
-					if (statworked == 0)
-					{
-						double fileTimestampDoubleStat = CHTimespecToTimeInterval(s.st_mtimespec);
-						//NSLog(@"fileTimestampDoubleStat %lf | %lf", fileTimestampDoubleStat, fileTimestampDoubleStat - passTimestamp);
-						
-						//NSLog(@"eq %d ?  diff %lf |  objc %lf |  stat %lf", fileTimestampDouble == fileTimestampDoubleStat, fileTimestampDoubleStat - fileTimestampDouble, fileTimestampDouble, fileTimestampDoubleStat);
-						
-						NSLog(@"ZTZZTZ %d %lf %lf %lf\n %@", shouldPerformPass, fileTimestampDoubleStat, passTimestamp, fileTimestampDoubleStat - passTimestamp, resourcePath);
-						if (fileTimestampDoubleStat > passTimestamp)
-							shouldPerformPass = YES;
-					}
-				}
-				
-				if (shouldPerformPass)
-				{
-					NSMutableSet *generatorMapping = [passPathTimestampMappings objectForKey:passGenerator];
-					
-					if (!generatorMapping)
-						[passPathTimestampMappings setValue:[NSMutableSet setWithObject:resourcePath] forKey:passGenerator];
-					else
-						[generatorMapping addObject:resourcePath];
-					
-					
-					[allNonignoredPaths addObject:resourcePath];
-				}
-				else
-				{
-					[allIgnoredPaths addObject:resourcePath];
-				}
-			});
-			
-		}
-		
-		[results close];
-	});
-	
-	dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-	dispatch_release(group);
-	
-	
-	
-	//NSLog(@"ignored = %@", allIgnoredPaths);
-	//NSLog(@"nonignored =  %@", allNonignoredPaths);
-	NSLog(@"mappings = %@", passPathTimestampMappings);
-	
-	NSDirectoryEnumerationOptions opts = 0;//NSDirectoryEnumerationSkipsSubdirectoryDescendants;
-	if (!indexHiddenFiles)
-		opts |= NSDirectoryEnumerationSkipsHiddenFiles;
-	
-	if (!indexPackages)
-		opts |= NSDirectoryEnumerationSkipsPackageDescendants;
-	
-	//Recurse the directory
-	NSDirectoryEnumerator *directoryEnumerator = [[NSFileManager defaultManager] enumeratorAtURL:[NSURL fileURLWithPath:dirpath isDirectory:YES] includingPropertiesForKeys:nil options:opts errorHandler:NULL];
-	__block NSUInteger indexCount = 0;
-	
-	NSUInteger maximum = 1000;
-	
-	NSTimeInterval observationStageStart = [NSDate timeIntervalSinceReferenceDate];
-	int observationCount = 0;
-	BOOL shouldSlowDown = NO;
-	NSTimeInterval slowdown = 0.0;
-	NSTimeInterval totalTime = 0.0;
-	
-	
-	for (NSURL *absoluteURL in directoryEnumerator)
-	{
-		// Work out our slowdown
-		if (observationCount == 10)
-		{
-			const CGFloat slowdownFactor = 4.0;
-			slowdown = (slowdownFactor - 1.0) * totalTime /*([NSDate timeIntervalSinceReferenceDate] - observationStageStart) */ / observationCount;
-			shouldSlowDown = YES;
-		}
-		
-		// Only index 400 files in one shot
-		if (isCountLimited && indexCount >= maximum)
-			break;
-		
-		if ([project checkStopped])
-			return;
-		
-		NSString *absolutePath = [absoluteURL path];
-		
-		//If it's an ignored path, give up
-		if ([allIgnoredPaths containsObject:absolutePath])
-		{
-			continue;
-		}
-		
-		//If it's not a nonignored path, we need to add it to resources and maybe pass it
-		if (![allNonignoredPaths containsObject:absolutePath])
-		{
-			NSString *absoluteName = [absolutePath lastPathComponent];
+    dispatch_async(scanqueue, ^(void) {
+        
+        NSString *directory = dirpath;
+        
+        NSLog(@"Scan directory: %@, database: %@", directory, database);
+        NSString *dirpath = CHThreadNonLocal([directory stringByStandardizingPath]);
+        directory = dirpath;
+        
+        // Is this a non local volume or removable media?
+        if (!CHDirectoryShouldBeIndexed(dirpath))
+        {
+            NSLog(@"Should not be indexed");
+            return;
+        }
+        
+        if (![directory hasSuffix:@"/"])
+            directory = [directory stringByAppendingString:@"/"];
+        
+        NSMutableSet *allNonignoredPaths = CHThreadNonLocal([[NSMutableSet alloc] init]);
+        NSMutableSet *allIgnoredPaths = CHThreadNonLocal([[NSMutableSet alloc] init]);
+        
+        // NSMutableDictionary{ generator_name, NSMutableDictionary{ path, timestamp } }
+        NSMutableDictionary *passPathTimestampMappings = CHThreadNonLocal([[NSMutableDictionary alloc] init]);
+        
+        
+        //A mapping between document file paths and when they were last changed
+        NSMutableDictionary *documentPathTimestampMappings = CHThreadNonLocal([[NSMutableDictionary alloc] init]);
+        
+        dispatch_group_t group = dispatch_group_create();
+        
+        //Get all resources for that database
+        dispatch_sync(database.queue, ^{
+            if (!database.db)
+                return;
             
-			//Find out if ignored
-			NSString *language = [self detectLanguageForPath:absolutePath];
-			if (language == nil)
-				continue;
-			
-			BOOL isIgnored = (language == nil);
-			
-			__block int64_t rid = -1;
-			
-			//Add to resources
-			dispatch_sync(database.queue, ^{
-				NSLog(@"Adding Resource | Name: %@ | Path: %@ | Language: %@ | Is Ignored? %@", absoluteName, absolutePath, language, (isIgnored ? @"Yes" : @"No")); 
-				[database.db executeUpdate:@"INSERT INTO resources (name, path, language, is_ignored) VALUES (?, ?, ?, ?)", absoluteName, absolutePath, language, [NSNumber numberWithBool:isIgnored]];
-				rid = [database.db lastInsertRowId];
-			});
-			
-			//Do a pass?
-			if (!isIgnored)
-			{
-				for (NSString *generator in [self generatorsForLanguage:language])
-				{
-					NSTimeInterval t = 0.0;
-					if (!shouldSlowDown)
-						t = [NSDate timeIntervalSinceReferenceDate];
-					
-					[self doPass:absolutePath generator:generator language:language database:database resourceID:rid];
-					
-					if (!shouldSlowDown)
-						totalTime += [NSDate timeIntervalSinceReferenceDate] - t;
-					
-					
-					indexCount++;
-					observationCount++;
-					
-					if (indexingCompletionBlock)
-						indexingCompletionBlock(((CGFloat)indexCount) / ((CGFloat)maximum), NO);
-					
-					//Pretty sure this is undefined behaviour...
-					if (shouldSlowDown)
-						[NSThread sleepForTimeInterval:slowdown];
-				}
-			}
-			
-			continue;
-		}
-		
-		//If it's a in passPathTimestampMappings we need to run those passes
-		
-		for (NSString *generator in passPathTimestampMappings)
-		{
-			// I have no idea what any of this does now that I changed @"generator" to generator
-			//...
-			NSSet *mapping = [passPathTimestampMappings valueForKey:generator];
-			
-			if ([mapping containsObject:absolutePath])
-			{
-				__block int64_t rid = -1;
-				__block NSString *language = nil;
-				
-				dispatch_sync(database.queue, ^{
-					FMResultSet *rset = [database.db executeQuery:@"SELECT id, language FROM resources WHERE path = ?", absolutePath];
-					if ([rset next])
-					{
-						rid = [rset longLongIntForColumnIndex:0];
-						language = [rset stringForColumnIndex:1];
-					}
-					[rset close];
-				});
-				
-				if (rid >= 1)
-				{
-					NSTimeInterval t = 0.0;
-					if (!shouldSlowDown)
-						t = [NSDate timeIntervalSinceReferenceDate];
-					
-					[self doPass:absolutePath generator:generator language:language database:database resourceID:rid];
-					
-					if (!shouldSlowDown)
-						totalTime += [NSDate timeIntervalSinceReferenceDate] - t;
-					
-					
-					
-					indexCount++;
-					observationCount++;
-					
-					if (indexingCompletionBlock)
-						indexingCompletionBlock(((CGFloat)indexCount) / ((CGFloat)maximum), NO);
-					
-					if (shouldSlowDown)
-						[NSThread sleepForTimeInterval:slowdown];
-				}
-			}
-		}
-	}
-	
-	if (indexingCompletionBlock)
-		indexingCompletionBlock(1.0, YES);
-	
-	return nil;
+            NSLog(@"databasePath : %@", [database.db databasePath]);
+            
+            NSString *query = @"SELECT resources.path, resources.is_ignored, passes.timestamp, passes.generator_name"
+            @"FROM resources LEFT JOIN passes ON passes.resource = resources.id"
+            @"WHERE resources.path LIKE ? || '%'";
+            FMResultSet *results = [database.db executeQuery:query, directory];
+            while ([results next]) {
+                
+                NSString *resourcePath = CHThreadNonLocal([[results stringForColumnIndex:0] copy]);
+                BOOL resourceIsIgnored = [results boolForColumnIndex:1];
+                double passTimestamp = [results doubleForColumnIndex:2];
+                NSString *passGenerator = CHThreadNonLocal([[results stringForColumnIndex:3] copy]);
+                
+                if (![resourcePath length])
+                    continue;
+                
+                //NSLog(@"resource: %@ | %d | %lf | %@", resourcePath, resourceIsIgnored, passTimestamp, passGenerator);
+                
+                //If the resource has been ignored, then we know it has no passes
+                if (resourceIsIgnored || ![passGenerator length])
+                {
+                    [allIgnoredPaths addObject:resourcePath];
+                    continue;
+                }
+                
+                dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                    BOOL shouldPerformPass = NO;
+                    
+                    //If the resource has an associated document, and it has been edited since the last path, then we need to perform a pass
+                    NSNumber *documentTimestamp = [documentPathTimestampMappings valueForKey:resourcePath];
+                    if (documentTimestamp && [documentTimestamp doubleValue] > passTimestamp)
+                        shouldPerformPass = YES;
+                    
+                    if (!shouldPerformPass)
+                    {
+                        //If the resource's file has been modified since then, we should perform a pass in that case too
+                        //NSError *err = nil;
+                        
+                        //TODO: We should probably use stat(2) for this instead
+                        //NSDate *fileTimestamp = [[[NSFileManager defaultManager] attributesOfItemAtPath:resourcePath error:&err] valueForKey:NSFileModificationDate];
+                        //double fileTimestampDouble = [fileTimestamp timeIntervalSinceReferenceDate];
+                        
+                        struct stat s;
+                        int statworked = [resourcePath fileSystemRepresentation] ? lstat([resourcePath fileSystemRepresentation], &s) : -1;
+                        if (statworked == 0)
+                        {
+                            double fileTimestampDoubleStat = CHTimespecToTimeInterval(s.st_mtimespec);
+                            //NSLog(@"fileTimestampDoubleStat %lf | %lf", fileTimestampDoubleStat, fileTimestampDoubleStat - passTimestamp);
+                            
+                            //NSLog(@"eq %d ?  diff %lf |  objc %lf |  stat %lf", fileTimestampDouble == fileTimestampDoubleStat, fileTimestampDoubleStat - fileTimestampDouble, fileTimestampDouble, fileTimestampDoubleStat);
+                            
+                            NSLog(@"ZTZZTZ %d %lf %lf %lf\n %@", shouldPerformPass, fileTimestampDoubleStat, passTimestamp, fileTimestampDoubleStat - passTimestamp, resourcePath);
+                            if (fileTimestampDoubleStat > passTimestamp)
+                                shouldPerformPass = YES;
+                        }
+                    }
+                    
+                    if (shouldPerformPass)
+                    {
+                        NSMutableSet *generatorMapping = [passPathTimestampMappings objectForKey:passGenerator];
+                        
+                        if (!generatorMapping)
+                            [passPathTimestampMappings setValue:[NSMutableSet setWithObject:resourcePath] forKey:passGenerator];
+                        else
+                            [generatorMapping addObject:resourcePath];
+                        
+                        
+                        [allNonignoredPaths addObject:resourcePath];
+                    }
+                    else
+                    {
+                        [allIgnoredPaths addObject:resourcePath];
+                    }
+                });
+                
+            }
+            
+            [results close];
+        });
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+        dispatch_release(group);
+        
+        
+        
+        //NSLog(@"ignored = %@", allIgnoredPaths);
+        //NSLog(@"nonignored =  %@", allNonignoredPaths);
+        NSLog(@"mappings = %@", passPathTimestampMappings);
+        
+        NSDirectoryEnumerationOptions opts = 0;//NSDirectoryEnumerationSkipsSubdirectoryDescendants;
+        if (!indexHiddenFiles)
+            opts |= NSDirectoryEnumerationSkipsHiddenFiles;
+        
+        if (!indexPackages)
+            opts |= NSDirectoryEnumerationSkipsPackageDescendants;
+        
+        //Recurse the directory
+        NSDirectoryEnumerator *directoryEnumerator = [[NSFileManager defaultManager] enumeratorAtURL:[NSURL fileURLWithPath:dirpath isDirectory:YES] includingPropertiesForKeys:nil options:opts errorHandler:NULL];
+        __block NSUInteger indexCount = 0;
+        
+        NSUInteger maximum = 1000;
+        
+        //NSTimeInterval observationStageStart = [NSDate timeIntervalSinceReferenceDate];
+        int observationCount = 0;
+        BOOL shouldSlowDown = NO;
+        NSTimeInterval slowdown = 0.0;
+        NSTimeInterval totalTime = 0.0;
+        
+        
+        for (NSURL *absoluteURL in directoryEnumerator)
+        {
+            // Work out our slowdown
+            if (observationCount == 10)
+            {
+                const CGFloat slowdownFactor = 4.0;
+                slowdown = (slowdownFactor - 1.0) * totalTime /*([NSDate timeIntervalSinceReferenceDate] - observationStageStart) */ / observationCount;
+                shouldSlowDown = YES;
+            }
+            
+            // Only index 400 files in one shot
+            if (isCountLimited && indexCount >= maximum)
+                break;
+            
+            if ([project checkStopped])
+                return;
+            
+            NSString *absolutePath = [absoluteURL path];
+            
+            //If it's an ignored path, give up
+            if ([allIgnoredPaths containsObject:absolutePath])
+            {
+                continue;
+            }
+            
+            //If it's not a nonignored path, we need to add it to resources and maybe pass it
+            if (![allNonignoredPaths containsObject:absolutePath])
+            {
+                NSString *absoluteName = [absolutePath lastPathComponent];
+                
+                //Find out if ignored
+                NSString *language = [self detectLanguageForPath:absolutePath];
+                if (language == nil)
+                    continue;
+                
+                BOOL isIgnored = (language == nil);
+                
+                __block int64_t rid = -1;
+                
+                //Add to resources
+                dispatch_sync(database.queue, ^{
+                    NSLog(@"Adding Resource | Name: %@ | Path: %@ | Language: %@ | Is Ignored? %@", absoluteName, absolutePath, language, (isIgnored ? @"Yes" : @"No")); 
+                    [database.db executeUpdate:@"INSERT INTO resources (name, path, language, is_ignored) VALUES (?, ?, ?, ?)", absoluteName, absolutePath, language, [NSNumber numberWithBool:isIgnored]];
+                    rid = [database.db lastInsertRowId];
+                });
+                
+                //Do a pass?
+                if (!isIgnored)
+                {
+                    for (NSString *generator in [self generatorsForLanguage:language])
+                    {
+                        NSTimeInterval t = 0.0;
+                        if (!shouldSlowDown)
+                            t = [NSDate timeIntervalSinceReferenceDate];
+                        
+                        [self doPass:absolutePath generator:generator language:language database:database resourceID:rid];
+                        
+                        if (!shouldSlowDown)
+                            totalTime += [NSDate timeIntervalSinceReferenceDate] - t;
+                        
+                        
+                        indexCount++;
+                        observationCount++;
+                        
+                        if (indexingCompletionBlock)
+                            indexingCompletionBlock(((CGFloat)indexCount) / ((CGFloat)maximum), NO);
+                        
+                        //Pretty sure this is undefined behaviour...
+                        if (shouldSlowDown)
+                            [NSThread sleepForTimeInterval:slowdown];
+                    }
+                }
+                
+                continue;
+            }
+            
+            //If it's a in passPathTimestampMappings we need to run those passes
+            
+            for (NSString *generator in passPathTimestampMappings)
+            {
+                // I have no idea what any of this does now that I changed @"generator" to generator
+                //...
+                NSSet *mapping = [passPathTimestampMappings valueForKey:generator];
+                
+                if ([mapping containsObject:absolutePath])
+                {
+                    __block int64_t rid = -1;
+                    __block NSString *language = nil;
+                    
+                    dispatch_sync(database.queue, ^{
+                        FMResultSet *rset = [database.db executeQuery:@"SELECT id, language FROM resources WHERE path = ?", absolutePath];
+                        if ([rset next])
+                        {
+                            rid = [rset longLongIntForColumnIndex:0];
+                            language = [rset stringForColumnIndex:1];
+                        }
+                        [rset close];
+                    });
+                    
+                    if (rid >= 1)
+                    {
+                        NSTimeInterval t = 0.0;
+                        if (!shouldSlowDown)
+                            t = [NSDate timeIntervalSinceReferenceDate];
+                        
+                        [self doPass:absolutePath generator:generator language:language database:database resourceID:rid];
+                        
+                        if (!shouldSlowDown)
+                            totalTime += [NSDate timeIntervalSinceReferenceDate] - t;
+                        
+                        
+                        
+                        indexCount++;
+                        observationCount++;
+                        
+                        if (indexingCompletionBlock)
+                            indexingCompletionBlock(((CGFloat)indexCount) / ((CGFloat)maximum), NO);
+                        
+                        if (shouldSlowDown)
+                            [NSThread sleepForTimeInterval:slowdown];
+                    }
+                }
+            }
+        }
+        
+        if (indexingCompletionBlock)
+            indexingCompletionBlock(1.0, YES);
+        
+    });
 }
 - (void)doPass:(NSString *)filePath generator:(NSString *)generator language:(NSString *)language database:(CHXMainDatabase *)database resourceID:(int64_t)rid
 {
+    /*
 	if ([generator isEqual:@"ctags"])
 	{
 		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
 			[CHXExuberantCtagsParser parsePath:filePath orContents:nil database:database language:language resourceID:rid];
 		});
-	}
+	}*/
+    
+    [project indexFileAtPath:filePath contents:nil language:language withIndexer:@"ctags" rid:rid];
 }
 - (NSString *)detectLanguageForPath:(NSString *)p
 {
@@ -391,7 +426,7 @@ BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
 #define EXTN(tolang, fromext) [languages setValue:tolang forKey:fromext]
 		
 		EXTN(@"Asm", @"asm");
-		EXTN(@"Asm", @"s");
+		//EXTN(@"Asm", @"s");
 		EXTN(@"Asm", @"68k");
 		EXTN(@"Asm", @"x86");
 		EXTN(@"Asm", @"x64");
@@ -568,6 +603,10 @@ BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
 		return YES;
 	}
 	return NO;
+}
+
+- (void)finalize {
+    dispatch_release(scanqueue);
 }
 
 @end

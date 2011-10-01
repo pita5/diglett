@@ -27,10 +27,26 @@
     NSTimeInterval lastScanned;
 }
 
+@property (readonly) NSString *directory;
+@property (readonly) NSString *identifier;
+
+@property (readonly) NSString *indexDBPath;
+@property (readonly) CHXMainDatabase *indexDB;
+
+@property (readonly) DGScanner *scanner;
+
+@property (readonly) dispatch_group_t indexingGroup;
+@property (readonly) dispatch_source_t scannerSource;
+
+@property (readonly) NSTimeInterval lastScanned;
+
+
 - (id)initWithArgs:(NSDictionary *)args;
 
 - (void)makeSource;
 - (void)open;
+
+- (BOOL)checkStopped;
 
 - (void)didScanIndexFile:(NSString *)path index:(NSInteger)index ofTotal:(NSInteger)total;
 - (void)watcherDidNotifyForDirectory:(NSString *)directoryPath;
@@ -46,6 +62,6 @@
 - (Class)indexerForName:(NSString *)indexerName;
 
 - (void)forceIndexFile:(NSString *)filePath args:(NSDictionary *)args;
-- (void)indexFileAtPath:(NSString *)path contents:(NSString *)contents language:(NSString *)language withIndexer:(NSString *)indexerName rid:(int64_t)rid;
 
+- (void)indexFileAtPath:(NSString *)path contents:(NSString *)contents language:(NSString *)language withIndexer:(NSString *)indexerName rid:(int64_t)rid index:(int64_t)index total:(int64_t)total forced:(BOOL)wasForced;
 @end

@@ -1,8 +1,13 @@
 #import "DGCtagsIndexer.h"
 
 #import <deque>
+#import <vector>
 #import <cstdlib>
 
+#import "CHTemporaryFile.h"
+#import "DGProject.h"
+#import "CHXMainDatabase.h"
+#import "FMDatabase.h"
 
 #pragma mark Invocation
 
@@ -15,7 +20,7 @@ extern "C" {
 }
 
 // Ctags's main function
-extern int ctags_main(int argc, char **argv);
+extern "C" int ctags_main(int argc, const char **argv);
 
 // The queue that ctags pushes results into
 std::deque<tagEntryInfo*> DGExCtag_TagEntryQueue;
@@ -30,9 +35,7 @@ void DGEntryPrint(tagEntryInfo entry);
 
 @interface DGCtagsIndexer ()
 
-- (tag_vector)parseFileContentsWithCtagsLanguage:(NSString *)ctagsLanguage;
-- (tag_vector)parseFilePath:(NSString *)inputPath withCtagsLanguage:(NSString *)ctagsLanguage;
-- (void)fillFrom:(tag_vector)entries;
+- (void)fillFrom:(tag_vector)entries finishedBlock:(dispatch_block_t)finishedBlock;
 
 @end
 
@@ -47,16 +50,19 @@ void DGEntryPrint(tagEntryInfo entry);
     
     return self;
 }
-
+- (NSString *)ctagsLanguage {
+    return language;
+}
 - (void)index {
     
     // Get the language
     NSString *ctagsLanguage = [self ctagsLanguage];
     
     // Parse the file
-    tag_vector tags =
-        contents ? [self parseFileContentsCtagsLanguage:ctagsLanguage]
-                : [self parseFilePath:path withCtagsLanguage:ctagsLanguage finishedBlock:NULL];
+    if (contents)
+        [self parseFileContentsCtagsLanguage:ctagsLanguage];
+    else
+        [self parseFilePath:path withCtagsLanguage:ctagsLanguage finishedBlock:NULL];
     
 //    [self fillFrom:tags];
 }
@@ -66,19 +72,22 @@ void DGEntryPrint(tagEntryInfo entry);
     // Put contents in a CHTemporaryFile
     CHTemporaryFile *tempfile = [[CHTemporaryFile alloc] init];
 	
+    BOOL worked = NO;
     if (tempfile)
     {
         NSError *err = nil;
-        BOOL worked = [contents writeToFile:tempfile.path atomically:NO encoding:NSUTF8StringEncoding error:&err];
-        if (!worked)
-            return;
-        
-        path = tempfile.path;
+        worked = [contents writeToFile:tempfile.path atomically:NO encoding:NSUTF8StringEncoding error:&err];
     }
     
-    return [self parseFilePath:temppath ctagsLanguage:ctagsLanguage finishedBlock:^{
-        [tempfile unlink];
-    }];
+    if (worked)
+        [self parseFilePath:tempfile.path ctagsLanguage:ctagsLanguage finishedBlock:^{
+            
+            completionBlock();
+            
+            [tempfile unlink];
+        }];
+    else
+        dispatch_async(dispatch_get_main_queue(), completionBlock);
 }
 - (void)parseFilePath:(NSString *)inputPath withCtagsLanguage:(NSString *)ctagsLanguage finishedBlock:(dispatch_block_t)finishedBlock
 {    
@@ -111,16 +120,16 @@ void DGEntryPrint(tagEntryInfo entry);
         std::copy(DGExCtag_TagEntryQueue.end(), DGExCtag_TagEntryQueue.end(), rv.begin());
         DGExCtag_TagEntryQueue.clear();
         
-        [self fillFrom:rv];
+        [self fillFrom:rv finishedBlock:finishedBlock];
     });
-    
-    return rv;
 }
 
-- (void)fillFrom:(tag_vector)entries {
+- (void)fillFrom:(tag_vector)entries finishedBlock:(dispatch_block_t)finishedBlock {
     
     __block int64_t pass_id = -1;
 	
+    CHXMainDatabase *db = [project indexDB];
+    
 	dispatch_group_async([project indexingGroup], db.queue, ^{
 		if (!db.db)
 			return;
@@ -141,32 +150,33 @@ void DGEntryPrint(tagEntryInfo entry);
 		pass_id = [db.db lastInsertRowId];
 		NSNumber *minusOne = [NSNumber numberWithInt:-1];
 		
-		for (tag_vector::iterator it = entries.begin(), et = entries.end(); it != et; ++it)
+		for (tag_vector::const_iterator it = entries.begin(), et = entries.end(); it != et; ++it)
 		{
 			tagEntryInfo tag = **it;
             
-            DGEntryPrint(entry);
+            DGEntryPrint(tag);
             
 			int64_t lineNumber = ((int64_t)(tag.lineNumber)) - 1;
             if (lineNumber < 0)
                 continue;
             
-			NSString *tQualifiedName = DGNSString(entry.name);
+			NSString *tQualifiedName = DGNSString(tag.name);
 			NSString *tPattern = DGNSString(NULL); // ??
-			NSString *tKind = DGNSString(entry.kindName);
+			NSString *tKind = DGNSString(tag.kindName);
 			if ([tKind isEqual:@"file"])
 				continue;
 			
-			short fileScope = entry.isFileScope;
+			short fileScope = tag.isFileScope;
             
-			if ([tPattern length] >= 3 && entry.address.pattern && (entry.address.pattern[0] == '/' || entry.address.pattern[0] == '?'))
+            /*
+			if ([tPattern length] >= 3 && tag.address.pattern && (tag.address.pattern[0] == '/' || tag.address.pattern[0] == '?'))
 				tPattern = [tPattern substringWithRange:NSMakeRange(1, [tPattern length] - 2)];
 			else
 				tPattern = @"";
-			
+			*/
 			NSString *tName = [[tQualifiedName componentsSeparatedByString:@"::"] lastObject];
             
-            insertcount++;
+            //insertcount++;
 			[db.db executeUpdate:@"INSERT INTO symbols (pass, name, qualified_name, regex, type_code,   parent_id, parent_name, parent_type_code,   range_line, range_column, range_length) "
              @" VALUES (?, ?, ?, ?, ?,   ?, ?, ?,   ?, ?, ?)",
              [NSNumber numberWithLongLong:pass_id],
@@ -179,7 +189,7 @@ void DGEntryPrint(tagEntryInfo entry);
 		    DGDestroyTagEntry(*it);
         }
         
-        commitcount++;
+       // commitcount++;
 		[db.db commit];
         
         if (finishedBlock)

@@ -11,9 +11,33 @@
 #import "DGCTagsIndexer.h"
 #import "DGController.h"
 
+static void dispatchtools_try_sync(dispatch_queue_t queue, dispatch_block_t block) {
+    if (dispatch_get_current_queue() == queue)
+        block();
+    else
+        dispatch_sync(queue, block);
+}
+
 static const double delayBetweenSuccessful = 120;
 
 @implementation DGProject
+
+@synthesize directory;
+@synthesize identifier;
+
+@synthesize indexDBPath;
+@synthesize indexDB;
+
+@synthesize scanner;
+
+@synthesize indexingGroup;
+@synthesize scannerSource;
+
+@synthesize lastScanned;
+
+- (BOOL)checkStopped {
+    return NO;
+}
 
 - (id)initWithArgs:(NSDictionary *)args
 {
@@ -130,6 +154,7 @@ static const double delayBetweenSuccessful = 120;
 - (Class)indexerForName:(NSString *)indexerName {
     if ([indexerName isEqual:@"ctags"])
         return [DGCtagsIndexer class];
+    return Nil;
 }
 
 - (void)forceIndexFile:(NSString *)filePath args:(NSDictionary *)args {
@@ -140,9 +165,9 @@ static const double delayBetweenSuccessful = 120;
     NSString *language = [args valueForKey:@"language"];
     
     for (NSString *indexerName in [self indexerNames])
-        [self indexFileAtPath:filePath contents:contents language:language withIndexer:indexerName rid:-1];
+        [self indexFileAtPath:filePath contents:contents language:language withIndexer:indexerName rid:-1 index:-1 total:-1 forced:YES];
 }
-- (void)indexFileAtPath:(NSString *)path contents:(NSString *)contents language:(NSString *)language withIndexer:(NSString *)indexerName rid:(int64_t)rid {
+- (void)indexFileAtPath:(NSString *)path contents:(NSString *)contents language:(NSString *)language withIndexer:(NSString *)indexerName rid:(int64_t)rid index:(int64_t)index total:(int64_t)total forced:(BOOL)wasForced {
     
     DGIndexer *indexer = [[[self indexerForName:indexerName] alloc] init];
     indexer.project = self;
@@ -151,12 +176,16 @@ static const double delayBetweenSuccessful = 120;
     indexer.language = language;;
     indexer.rid = rid;
     indexer.completionBlock = ^{
-        ...
+        
         
         // The scanner should give us the index and total so we can call
         // - (void)didScanIndexFile:(NSString *)path index:(NSInteger)index ofTotal:(NSInteger)total;
         
         // Send a notification to the DGController
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self didScanIndexFile:[path copy] index:index ofTotal:total]; 
+        });
     };
     
     [indexer index];

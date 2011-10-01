@@ -21,10 +21,10 @@
 }
 
 - (NSData *)compressString:(NSString *)string {
-    
+    return nil;
 }
-- (NSString *)decompressData;(NSData *)data {
-    
+- (NSString *)decompressData:(NSData *)data {
+    return nil;
 }
 
 @end
