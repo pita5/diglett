@@ -65,6 +65,7 @@
 		7573E3FD1434BB3A00846BA9 /* vim.c in Sources */ = {isa = PBXBuildFile; fileRef = 7573E3C71434BB3900846BA9 /* vim.c */; };
 		7573E3FE1434BB3A00846BA9 /* vstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 7573E3C81434BB3A00846BA9 /* vstring.c */; };
 		7573E3FF1434BB3A00846BA9 /* yacc.c in Sources */ = {isa = PBXBuildFile; fileRef = 7573E3CA1434BB3A00846BA9 /* yacc.c */; };
+		75B27D3B143A416200FA4965 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 75B27D3A143A416200FA4965 /* sqlite3.c */; };
 		75E5685514353C2E00174E82 /* DGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685414353C2E00174E82 /* DGWatcher.m */; };
 		75E5685814353C5500174E82 /* DGScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685714353C5500174E82 /* DGScanner.m */; };
 		75E5685B14353C6F00174E82 /* DGProject.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685A14353C6F00174E82 /* DGProject.m */; };
@@ -178,6 +179,7 @@
 		7573E3C81434BB3A00846BA9 /* vstring.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vstring.c; path = "../Libraries/exuberant-ctags/vstring.c"; sourceTree = "<group>"; };
 		7573E3C91434BB3A00846BA9 /* vstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vstring.h; path = "../Libraries/exuberant-ctags/vstring.h"; sourceTree = "<group>"; };
 		7573E3CA1434BB3A00846BA9 /* yacc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = yacc.c; path = "../Libraries/exuberant-ctags/yacc.c"; sourceTree = "<group>"; };
+		75B27D3A143A416200FA4965 /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqlite3.c; path = ../../sqlite/sqlite3.c; sourceTree = "<group>"; };
 		75E5685314353C2E00174E82 /* DGWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGWatcher.h; sourceTree = "<group>"; };
 		75E5685414353C2E00174E82 /* DGWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGWatcher.m; sourceTree = "<group>"; };
 		75E5685614353C5500174E82 /* DGScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGScanner.h; sourceTree = "<group>"; };
@@ -273,6 +275,7 @@
 		7573E2D71433D86B00846BA9 /* source */ = {
 			isa = PBXGroup;
 			children = (
+				75B27D3A143A416200FA4965 /* sqlite3.c */,
 				75E5688314375B0F00174E82 /* CHThreadNonLocal.h */,
 				75E5687D143746C500174E82 /* CHXDatabase.h */,
 				75E5687E143746C500174E82 /* CHXDatabase.m */,
@@ -526,6 +529,7 @@
 				75E5687C143746AB00174E82 /* FMResultSet.m in Sources */,
 				75E56881143746C600174E82 /* CHXDatabase.m in Sources */,
 				75E56882143746C600174E82 /* CHXMainDatabase.m in Sources */,
+				75B27D3B143A416200FA4965 /* sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -551,10 +555,15 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../..,
+					..,
+					../Libraries,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = ../../..;
+				USER_HEADER_SEARCH_PATHS = ".. ../../.. ../Libraries";
 			};
 			name = Debug;
 		};
@@ -571,9 +580,14 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../..,
+					..,
+					../Libraries,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = ../../..;
+				USER_HEADER_SEARCH_PATHS = ".. ../../.. ../Libraries";
 			};
 			name = Release;
 		};

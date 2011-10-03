@@ -91,7 +91,7 @@ void DGEntryPrint(tagEntryInfo entry);
 }
 - (void)parseFilePath:(NSString *)inputPath withCtagsLanguage:(NSString *)ctagsLanguage finishedBlock:(dispatch_block_t)finishedBlock
 {    
-    extern dispatch_queue_t DGCtagsQueue;
+    static dispatch_queue_t DGCtagsQueue;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         DGCtagsQueue = dispatch_queue_create(NULL, NULL);
