@@ -220,9 +220,11 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
         
         //Recurse the directory
         NSDirectoryEnumerator *directoryEnumerator = [[NSFileManager defaultManager] enumeratorAtURL:[NSURL fileURLWithPath:dirpath isDirectory:YES] includingPropertiesForKeys:nil options:opts errorHandler:NULL];
-        __block NSUInteger indexCount = 0;
+        //__block NSUInteger indexCount = 0;
+        indexI = 0;
+        totalI = [passPathTimestampMappings count] + 1;
         
-        NSUInteger maximum = 1000;
+        NSUInteger maximum = 5000;
         
         //NSTimeInterval observationStageStart = [NSDate timeIntervalSinceReferenceDate];
         int observationCount = 0;
@@ -242,7 +244,7 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
             }
             
             // Only index 400 files in one shot
-            if (isCountLimited && indexCount >= maximum)
+            if (isCountLimited && indexI >= maximum)
                 break;
             
             if ([project checkStopped])
@@ -292,11 +294,11 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
                             totalTime += [NSDate timeIntervalSinceReferenceDate] - t;
                         
                         
-                        indexCount++;
+                        indexI++;
                         observationCount++;
                         
                         if (indexingCompletionBlock)
-                            indexingCompletionBlock(((CGFloat)indexCount) / ((CGFloat)maximum), NO);
+                            indexingCompletionBlock(((CGFloat)indexI) / ((CGFloat)maximum), NO);
                         
                         //Pretty sure this is undefined behaviour...
                         if (shouldSlowDown)
@@ -343,11 +345,11 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
                         
                         
                         
-                        indexCount++;
+                        indexI++;
                         observationCount++;
                         
                         if (indexingCompletionBlock)
-                            indexingCompletionBlock(((CGFloat)indexCount) / ((CGFloat)maximum), NO);
+                            indexingCompletionBlock(((CGFloat)indexI) / ((CGFloat)maximum), NO);
                         
                         if (shouldSlowDown)
                             [NSThread sleepForTimeInterval:slowdown];
@@ -371,7 +373,7 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
 		});
 	}*/
     
-    [project indexFileAtPath:filePath contents:nil language:language withIndexer:@"ctags" rid:rid];
+    [project indexFileAtPath:filePath contents:nil language:language withIndexer:@"ctags" rid:rid index:indexI total:totalI forced:NO];
 }
 - (NSString *)detectLanguageForPath:(NSString *)p
 {

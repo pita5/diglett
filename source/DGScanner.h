@@ -24,6 +24,8 @@
 	
 	void (^indexingCompletionBlock)(CGFloat progress, BOOL hasFinished);
     
+    NSInteger totalI;
+    NSInteger indexI;
     dispatch_queue_t scanqueue;
 }
 

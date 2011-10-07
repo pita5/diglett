@@ -643,6 +643,7 @@ static boolean createTagsWithFallback (
 		fsetpos (TagFile.fp, &tagFilePosition);
 		TagFile.numTags.added = numTags;
 		tagFileResized = TRUE;
+        
 	}
 	return tagFileResized;
 }

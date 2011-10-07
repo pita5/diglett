@@ -22,6 +22,8 @@
 #include "routines.h"
 #include "vstring.h"
 
+#import "ctags_globals.h"
+
 /*
 *   DATA DEFINITIONS
 */
@@ -43,7 +45,7 @@ static kindOption ShKinds [] = {
  */
 static boolean hackReject (const vString* const tagName)
 {
-	const char *const scriptName = baseFilename (vStringValue (File.name));
+	const char *const scriptName = baseFilename (vStringValue (GSDG.File.name));
 	boolean result = (boolean) (
 			strcmp (scriptName, "configure") == 0  &&
 			strcmp (vStringValue (tagName), "main") == 0);

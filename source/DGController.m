@@ -45,7 +45,8 @@
 #pragma mark Input Messages
 
 - (void)didReceiveNotification:(NSNotification *)notif {
-    NSString *name = [notif name];
+    NSLog(@"RECEIVED NOTIFICATION DIGLETT:: %@", notif);
+    NSString *name = [[notif userInfo] valueForKey:@"kind"];//[notif name];
     if ([name isEqual:@"CHDiglettProjectOpen"])
         [self project_open:[notif userInfo]];
     else if ([name isEqual:@"CHDiglettProjectSuspend"])
@@ -62,6 +63,29 @@
         [self project_close:[notif userInfo]];
     else if ([name isEqual:@"CHDiglettFileIndex"])
         [self file_index:[notif userInfo]];
+
+    [self reobserveNotifs];
+}
+
+- (void)observeNotifs {
+    
+    NSArray *notificationNames = [NSArray arrayWithObjects:@"CHDiglettProjectOpen", @"CHDiglettProjectSuspend", @"CHDiglettProjectResume", @"CHDiglettProjectRescan", @"CHDiglettProjectReindex", @"CHDiglettProjectDiscard", @"CHDiglettProjectClose", @"w", nil];
+//    for (NSString *notifName in notificationNames) {
+        [[NSDistributedNotificationCenter defaultCenter] addObserver:self
+                                                            selector:@selector(didReceiveNotification:)
+                                                                name:@"CHDiglett"//notifName
+                                                              object:[NSString stringWithFormat:@"diglett-ld", getppid()]];
+        
+//    }
+    //[[NSDistributedNotificationCenter defaultCenter] setSuspended:NO];
+}
+- (void)reobserveNotifs {
+    
+    //[[NSDistributedNotificationCenter defaultCenter] setSuspended:YES];
+    
+    //[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
+    
+    //[self performSelector:@selector(observeNotifs) withObject:nil afterDelay:0.0];
 }
 
 - (void)project_open:(NSDictionary *)args { // { project_identifier }
@@ -70,6 +94,12 @@
     
     // Is there a project for this already?
     if ([self projectForMessageArgs:args])
+        return;
+    
+    if (![[args valueForKey:@"project_identifier"] length])
+        return;
+    
+    if ([projectMap valueForKey:[args valueForKey:@"project_identifier"]])
         return;
     
     DGProject *project = [[DGProject alloc] initWithArgs:args];
@@ -115,11 +145,21 @@
 }
 - (void)file_index:(NSDictionary *)args { // { path, project_identifier, unique_job_identifier, unique_job_timestamp, contents, language }
     //Force diglett to index a file, ignoring its representation on disk, and instead taking a contents string
+    DGProject *proj = [self projectForMessageArgs:args];
+    if (!proj) {
+        [self project_open:args];
+        proj = [self projectForMessageArgs:args];
+    }
     
-    [[self projectForMessageArgs:args] forceIndexFile:[args valueForKey:@"path"] args:args];
+    NSLog(@"[self projectForMessageArgs:args] = %@", proj);
+    [proj forceIndexFile:[args valueForKey:@"path"] args:args];
 }
 
 #pragma mark Messages from Diglett => Chocolat
+
+- (void)didScanIndexFile:(NSString *)path index:(NSInteger)index ofTotal:(NSInteger)total {
+    
+}
 
 - (void)send_file_did_index:(NSDictionary *)args { // { path, project_identifier, unique_job_identifier, unique_job_timestamp, language }
     //Sent after a file.index has finished. Prompts Chocolat to refresh the Navigator, etc.

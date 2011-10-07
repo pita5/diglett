@@ -48,6 +48,8 @@
 #include "sort.h"
 #include "strlist.h"
 
+#import "ctags_globals.h"
+
 /*
 *   MACROS
 */
@@ -107,6 +109,7 @@ extern void freeTagFileResources (void)
 	if (TagFile.directory != NULL)
 		eFree (TagFile.directory);
 	vStringDelete (TagFile.vLine);
+    memset(&TagFile, sizeof(TagFile), 0);
 }
 
 extern const char *tagFileName (void)
@@ -773,7 +776,7 @@ static int writePatternEntry (const tagEntryInfo *const tag)
 	int length = 0;
 
 	if (line == NULL)
-		error (FATAL, "bad tag in %s", vStringValue (File.name));
+		error (FATAL, "bad tag in %s", vStringValue (GSDG.File.name));
 	if (tag->truncateLine)
 		truncateTagLine (line, tag->name, FALSE);
 	newlineTerminated = (boolean) (line [strlen (line) - 1] == '\n');
@@ -821,7 +824,7 @@ static const char * DGStringMallocCopy(const char *str) {
     return target;
 }
 static tagEntryInfo* DGCopyTagEntry(const tagEntryInfo *const tag) {
-    
+    printf("tag = %d\n", tag);
 #if 0
     boolean     lineNumberEntry;  /* pattern or line number entry */
     
@@ -857,10 +860,12 @@ static tagEntryInfo* DGCopyTagEntry(const tagEntryInfo *const tag) {
 #endif
     
     tagEntryInfo* copytag = calloc(sizeof(tagEntryInfo), 1);
+        
     copytag->lineNumberEntry = tag->lineNumberEntry;
     copytag->lineNumber = tag->lineNumber;
     
-    copytag->language = DGStringMallocCopy(tag->language);
+    if (Option.extensionFields.language)
+        copytag->language = DGStringMallocCopy(tag->language);
     
     copytag->isFileScope = tag->isFileScope;
     copytag->isFileEntry = tag->isFileEntry;
@@ -868,30 +873,59 @@ static tagEntryInfo* DGCopyTagEntry(const tagEntryInfo *const tag) {
     
     copytag->sourceFileName = DGStringMallocCopy(tag->sourceFileName);
     copytag->name = DGStringMallocCopy(tag->name);
-    copytag->kindName = DGStringMallocCopy(tag->kindName);
-
-    copytag->kind = tag->kind;
     
-    copytag->extensionFields.access = DGStringMallocCopy(tag->extensionFields.access);
-    copytag->extensionFields.fileScope = DGStringMallocCopy(tag->extensionFields.fileScope);
-    copytag->extensionFields.implementation = DGStringMallocCopy(tag->extensionFields.implementation);
-    copytag->extensionFields.inheritance = DGStringMallocCopy(tag->extensionFields.inheritance);
-    copytag->extensionFields.scope[0] = DGStringMallocCopy(tag->extensionFields.scope[0]);
-    copytag->extensionFields.scope[1] = DGStringMallocCopy(tag->extensionFields.scope[1]);
-    copytag->extensionFields.signature = DGStringMallocCopy(tag->extensionFields.signature);
-    copytag->extensionFields.typeRef[0] = DGStringMallocCopy(tag->extensionFields.typeRef[0]);
-    copytag->extensionFields.typeRef[1] = DGStringMallocCopy(tag->extensionFields.typeRef[1]);
+    if (includeExtensionFlags()) {
     
+        if (tag->kindName != NULL && (Option.extensionFields.kindLong || (Option.extensionFields.kind  && tag->kind == '\0')))
+            copytag->kindName = DGStringMallocCopy(tag->kindName);
+    //    else if (tag->kind != '\0'  && (Option.extensionFields.kind || (Option.extensionFields.kindLong  &&  tag->kindName == NULL)))
+            copytag->kind = tag->kind;
+        
+        if (Option.extensionFields.access) {// && tag->extensionFields.access == 0x46) {
+            printf("it's %d!\n", tag->extensionFields.access);
+        }
+        
+        if (Option.extensionFields.access)
+            copytag->extensionFields.access = DGStringMallocCopy(tag->extensionFields.access);
+        if (Option.extensionFields.fileScope && tag->isFileScope)
+            copytag->extensionFields.fileScope = DGStringMallocCopy(tag->extensionFields.fileScope);
+        if (Option.extensionFields.implementation)
+            copytag->extensionFields.implementation = DGStringMallocCopy(tag->extensionFields.implementation);
+        if (Option.extensionFields.inheritance)
+            copytag->extensionFields.inheritance = DGStringMallocCopy(tag->extensionFields.inheritance);
+        
+        if (Option.extensionFields.scope) {
+            copytag->extensionFields.scope[0] = DGStringMallocCopy(tag->extensionFields.scope[0]);
+            copytag->extensionFields.scope[1] = DGStringMallocCopy(tag->extensionFields.scope[1]);
+        }
+        
+        if (Option.extensionFields.signature)
+            copytag->extensionFields.signature = DGStringMallocCopy(tag->extensionFields.signature);
+        
+        if (Option.extensionFields.typeRef) {
+            copytag->extensionFields.typeRef[0] = DGStringMallocCopy(tag->extensionFields.typeRef[0]);
+            copytag->extensionFields.typeRef[1] = DGStringMallocCopy(tag->extensionFields.typeRef[1]);
+        }
+        
+        char *const sourceLine = readSourceLine(TagFile.vLine, tag->filePosition, NULL);
+        
+        if (sourceLine) {
+            copytag->extensionFields.sourceLine = DGStringMallocCopy(sourceLine);
+        }
+    
+    }
+        
     return copytag;
 }
 
-void DGExCtag_PushTagEntry(tagEntryInfo* tag);
-tagEntryInfo* DGExCtag_PopTagEntry();
+void DGExCtag_PushTagEntry(void* const tag);
 
 extern void makeTagEntry(const tagEntryInfo *const tag)
 {
     // Copy the tag entry
+    printf("tag -> ext -> access = %d\n", tag->extensionFields.access);
     tagEntryInfo* copied_tag = DGCopyTagEntry(tag);
+    printf("copied_tag -> ext -> access = %d\n", copied_tag->extensionFields.access);
     
     // Push the tag entry to the global entry_queue
     DGExCtag_PushTagEntry(copied_tag);
@@ -900,7 +934,7 @@ extern void makeTagEntry(const tagEntryInfo *const tag)
     
 	Assert (tag->name != NULL);
 	if (tag->name [0] == '\0')
-		error (WARNING, "ignoring null tag in %s", vStringValue (File.name));
+		error (WARNING, "ignoring null tag in %s", vStringValue (GSDG.File.name));
 	else
 	{
 		int length = 0;
@@ -924,7 +958,7 @@ extern void makeTagEntry(const tagEntryInfo *const tag)
 
 extern void initTagEntry (tagEntryInfo *const e, const char *const name)
 {
-	Assert (File.source.name != NULL);
+	Assert (GSDG.File.source.name != NULL);
 	memset (e, 0, sizeof (tagEntryInfo));
 	e->lineNumberEntry = (boolean) (Option.locate == EX_LINENUM);
 	e->lineNumber      = getSourceLineNumber ();

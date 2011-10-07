@@ -25,6 +25,8 @@
 
 #include <string.h>
 
+#import "ctags_globals.h"
+
 /*  To provide timings features if available.
  */
 #ifdef HAVE_CLOCK
@@ -524,6 +526,8 @@ static void makeTags (cookedArgs *args)
 
 extern int ctags_main (int argc, char **argv)
 {
+    init_global_state();
+    
 	cookedArgs *args;
 #ifdef VMS
 	extern int getredirection (int *ac, char ***av);
@@ -571,8 +575,11 @@ extern int ctags_main (int argc, char **argv)
 	freeOptionResources ();
 	freeParserResources ();
 	freeRegexResources ();
-
-	exit (0);
+    
+    destroy_global_state();
+    
+// THIS LINE SHOULD REMAIN COMMENTED OUT
+//	exit (0);
 	return 0;
 }
 

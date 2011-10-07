@@ -41,14 +41,18 @@ typedef struct sHashEntry {
 */
 static const unsigned int TableSize = 1 << HASH_EXPONENT;
 static hashEntry **HashTable = NULL;
+static boolean allocated = FALSE;
 
 /*
 *   FUNCTION DEFINITIONS
 */
 
+void keyword_cleanstatics() {
+    HashTable = NULL;
+}
+
 static hashEntry **getHashTable (void)
 {
-	static boolean allocated = FALSE;
 
 	if (! allocated)
 	{
@@ -189,6 +193,8 @@ extern void freeKeywordTable (void)
 		}
 		eFree (HashTable);
 	}
+    allocated = 0;
+    HashTable = NULL;
 }
 
 extern int analyzeToken (vString *const name, langType language)

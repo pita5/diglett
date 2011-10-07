@@ -25,6 +25,8 @@
 #include "routines.h"
 #include "vstring.h"
 
+#import "ctags_globals.h"
+
 /*
 *   MACROS
 */
@@ -303,7 +305,7 @@ static void findBetaTags (void)
 		}
 		endofline:
 		inquote = FALSE;  /* This shouldn't really make a difference */
-	} while (!feof (File.fp));
+	} while (!feof (GSDG.File.fp));
 	vStringDelete (line);
 }
 

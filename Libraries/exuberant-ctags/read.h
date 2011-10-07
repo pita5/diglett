@@ -31,16 +31,16 @@
 /*
 *   MACROS
 */
-#define getInputLineNumber()     File.lineNumber
-#define getInputFileName()       vStringValue (File.source.name)
-#define getInputFilePosition()   File.filePosition
-#define getSourceFileName()      vStringValue (File.source.name)
-#define getSourceFileTagPath()   File.source.tagPath
-#define getSourceLanguage()      File.source.language
-#define getSourceLanguageName()  getLanguageName (File.source.language)
-#define getSourceLineNumber()    File.source.lineNumber
-#define isLanguage(lang)         (boolean)((lang) == File.source.language)
-#define isHeaderFile()           File.source.isHeader
+#define getInputLineNumber()     GSDG.File.lineNumber
+#define getInputFileName()       vStringValue (GSDG.File.source.name)
+#define getInputFilePosition()   GSDG.File.filePosition
+#define getSourceFileName()      vStringValue (GSDG.File.source.name)
+#define getSourceFileTagPath()   GSDG.File.source.tagPath
+#define getSourceLanguage()      GSDG.File.source.language
+#define getSourceLanguageName()  getLanguageName (GSDG.File.source.language)
+#define getSourceLineNumber()    GSDG.File.source.lineNumber
+#define isLanguage(lang)         (boolean)((lang) == GSDG.File.source.language)
+#define isHeaderFile()           GSDG.File.source.isHeader
 
 /*
 *   DATA DECLARATIONS
@@ -94,7 +94,7 @@ typedef struct sInputFile {
 /*
 *   GLOBAL VARIABLES
 */
-extern CONST_FILE inputFile File;
+//extern CONST_FILE inputFile File;
 
 /*
 *   FUNCTION PROTOTYPES
@@ -113,3 +113,7 @@ extern char *readSourceLine (vString *const vLine, fpos_t location, long *const 
 #endif  /* _READ_H */
 
 /* vi:set tabstop=4 shiftwidth=4: */
+
+#define SHOULD_NOT_IMPORT_READ
+#import "ctags_globals.h"
+#undef SHOULD_NOT_IMPORT_READ

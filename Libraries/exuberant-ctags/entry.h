@@ -75,7 +75,7 @@ typedef struct sTagEntryInfo {
 
 		/* type (union/struct/etc.) and name for a variable or typedef. */
 		const char* typeRef [2];  /* e.g., "struct" and struct name */
-
+        const char* sourceLine;
 	} extensionFields;  /* list of extension fields*/
 } tagEntryInfo;
 

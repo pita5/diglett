@@ -182,6 +182,7 @@ extern void freeRoutineResources (void)
 {
 	if (CurrentDirectory != NULL)
 		eFree (CurrentDirectory);
+    CurrentDirectory = NULL;
 }
 
 extern void setExecutableName (const char *const path)

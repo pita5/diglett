@@ -29,8 +29,9 @@
 /*
 *   DATA DEFINITIONS
 */
-inputFile File;  /* globally read through macros */
-static fpos_t StartOfLine;  /* holds deferred position of start of line */
+//inputFile File;  /* globally read through macros */
+//static fpos_t StartOfLine;  /* holds deferred position of start of line */
+#import "ctags_globals.h"
 
 /*
 *   FUNCTION DEFINITIONS
@@ -38,16 +39,19 @@ static fpos_t StartOfLine;  /* holds deferred position of start of line */
 
 extern void freeSourceFileResources (void)
 {
-	if (File.name != NULL)
-		vStringDelete (File.name);
-	if (File.path != NULL)
-		vStringDelete (File.path);
-	if (File.source.name != NULL)
-		vStringDelete (File.source.name);
-	if (File.source.tagPath != NULL)
-		eFree (File.source.tagPath);
-	if (File.line != NULL)
-		vStringDelete (File.line);
+	if (GSDG.File.name != NULL)
+		vStringDelete (GSDG.File.name);
+	if (GSDG.File.path != NULL)
+		vStringDelete (GSDG.File.path);
+	if (GSDG.File.source.name != NULL)
+		vStringDelete (GSDG.File.source.name);
+	if (GSDG.File.source.tagPath != NULL)
+		eFree (GSDG.File.source.tagPath);
+	if (GSDG.File.line != NULL)
+		vStringDelete (GSDG.File.line);
+    
+    //memset(&File, sizeof(File), 0);
+    GSDG.StartOfLine = 0;
 }
 
 /*
@@ -59,41 +63,41 @@ static void setInputFileName (const char *const fileName)
 	const char *const head = fileName;
 	const char *const tail = baseFilename (head);
 
-	if (File.name != NULL)
-		vStringDelete (File.name);
-	File.name = vStringNewInit (fileName);
+	if (GSDG.File.name != NULL)
+		vStringDelete (GSDG.File.name);
+	GSDG.File.name = vStringNewInit (fileName);
 
-	if (File.path != NULL)
-		vStringDelete (File.path);
+	if (GSDG.File.path != NULL)
+		vStringDelete (GSDG.File.path);
 	if (tail == head)
-		File.path = NULL;
+		GSDG.File.path = NULL;
 	else
 	{
 		const size_t length = tail - head - 1;
-		File.path = vStringNew ();
-		vStringNCopyS (File.path, fileName, length);
+		GSDG.File.path = vStringNew ();
+		vStringNCopyS (GSDG.File.path, fileName, length);
 	}
 }
 
 static void setSourceFileParameters (vString *const fileName)
 {
-	if (File.source.name != NULL)
-		vStringDelete (File.source.name);
-	File.source.name = fileName;
+	if (GSDG.File.source.name != NULL)
+		vStringDelete (GSDG.File.source.name);
+	GSDG.File.source.name = fileName;
 
-	if (File.source.tagPath != NULL)
-		eFree (File.source.tagPath);
+	if (GSDG.File.source.tagPath != NULL)
+		eFree (GSDG.File.source.tagPath);
 	if (! Option.tagRelative || isAbsolutePath (vStringValue (fileName)))
-		File.source.tagPath = eStrdup (vStringValue (fileName));
+		GSDG.File.source.tagPath = eStrdup (vStringValue (fileName));
 	else
-		File.source.tagPath =
+		GSDG.File.source.tagPath =
 				relativeFilename (vStringValue (fileName), TagFile.directory);
 
 	if (vStringLength (fileName) > TagFile.max.file)
 		TagFile.max.file = vStringLength (fileName);
 
-	File.source.isHeader = isIncludeFile (vStringValue (fileName));
-	File.source.language = getFileLanguage (vStringValue (fileName));
+	GSDG.File.source.isHeader = isIncludeFile (vStringValue (fileName));
+	GSDG.File.source.language = getFileLanguage (vStringValue (fileName));
 }
 
 static boolean setSourceFileName (vString *const fileName)
@@ -102,11 +106,11 @@ static boolean setSourceFileName (vString *const fileName)
 	if (getFileLanguage (vStringValue (fileName)) != LANG_IGNORE)
 	{
 		vString *pathName;
-		if (isAbsolutePath (vStringValue (fileName)) || File.path == NULL)
+		if (isAbsolutePath (vStringValue (fileName)) || GSDG.File.path == NULL)
 			pathName = vStringNewCopy (fileName);
 		else
 			pathName = combinePathAndFile (
-					vStringValue (File.path), vStringValue (fileName));
+					vStringValue (GSDG.File.path), vStringValue (fileName));
 		setSourceFileParameters (pathName);
 		result = TRUE;
 	}
@@ -121,7 +125,7 @@ static int skipWhite (void)
 {
 	int c;
 	do
-		c = getc (File.fp);
+		c = getc (GSDG.File.fp);
 	while (c == ' '  ||  c == '\t');
 	return c;
 }
@@ -133,9 +137,9 @@ static unsigned long readLineNumber (void)
 	while (c != EOF  &&  isdigit (c))
 	{
 		lNum = (lNum * 10) + (c - '0');
-		c = getc (File.fp);
+		c = getc (GSDG.File.fp);
 	}
-	ungetc (c, File.fp);
+	ungetc (c, GSDG.File.fp);
 	if (c != ' '  &&  c != '\t')
 		lNum = 0;
 
@@ -158,17 +162,17 @@ static vString *readFileName (void)
 
 	if (c == '"')
 	{
-		c = getc (File.fp);  /* skip double-quote */
+		c = getc (GSDG.File.fp);  /* skip double-quote */
 		quoteDelimited = TRUE;
 	}
 	while (c != EOF  &&  c != '\n'  &&
 			(quoteDelimited ? (c != '"') : (c != ' '  &&  c != '\t')))
 	{
 		vStringPut (fileName, c);
-		c = getc (File.fp);
+		c = getc (GSDG.File.fp);
 	}
 	if (c == '\n')
-		ungetc (c, File.fp);
+		ungetc (c, GSDG.File.fp);
 	vStringPut (fileName, '\0');
 
 	return fileName;
@@ -182,13 +186,13 @@ static boolean parseLineDirective (void)
 
 	if (isdigit (c))
 	{
-		ungetc (c, File.fp);
+		ungetc (c, GSDG.File.fp);
 		result = TRUE;
 	}
-	else if (c == 'l'  &&  getc (File.fp) == 'i'  &&
-			 getc (File.fp) == 'n'  &&  getc (File.fp) == 'e')
+	else if (c == 'l'  &&  getc (GSDG.File.fp) == 'i'  &&
+			 getc (GSDG.File.fp) == 'n'  &&  getc (GSDG.File.fp) == 'e')
 	{
-		c = getc (File.fp);
+		c = getc (GSDG.File.fp);
 		if (c == ' '  ||  c == '\t')
 		{
 			DebugStatement ( lineStr = "line"; )
@@ -205,12 +209,12 @@ static boolean parseLineDirective (void)
 			vString *const fileName = readFileName ();
 			if (vStringLength (fileName) == 0)
 			{
-				File.source.lineNumber = lNum - 1;  /* applies to NEXT line */
+				GSDG.File.source.lineNumber = lNum - 1;  /* applies to NEXT line */
 				DebugStatement ( debugPrintf (DEBUG_RAW, "#%s %ld", lineStr, lNum); )
 			}
 			else if (setSourceFileName (fileName))
 			{
-				File.source.lineNumber = lNum - 1;  /* applies to NEXT line */
+				GSDG.File.source.lineNumber = lNum - 1;  /* applies to NEXT line */
 				DebugStatement ( debugPrintf (DEBUG_RAW, "#%s %ld \"%s\"",
 								lineStr, lNum, vStringValue (fileName)); )
 			}
@@ -244,7 +248,7 @@ static boolean parseLineDirective (void)
  *  fails, it will display an error message and leave the File.fp set to NULL.
  */
 extern boolean fileOpen (const char *const fileName, const langType language)
-{
+{    
 #ifdef VMS
 	const char *const openMode = "r";
 #else
@@ -254,72 +258,72 @@ extern boolean fileOpen (const char *const fileName, const langType language)
 
 	/*	If another file was already open, then close it.
 	 */
-	if (File.fp != NULL)
+	if (GSDG.File.fp != NULL)
 	{
-		fclose (File.fp);  /* close any open source file */
-		File.fp = NULL;
+		fclose (GSDG.File.fp);  /* close any open source file */
+		GSDG.File.fp = NULL;
 	}
 
-	File.fp = fopen (fileName, openMode);
-	if (File.fp == NULL)
+	GSDG.File.fp = fopen (fileName, openMode);
+	if (GSDG.File.fp == NULL)
 		error (WARNING | PERROR, "cannot open \"%s\"", fileName);
 	else
 	{
 		opened = TRUE;
 
 		setInputFileName (fileName);
-		fgetpos (File.fp, &StartOfLine);
-		fgetpos (File.fp, &File.filePosition);
-		File.currentLine  = NULL;
-		File.lineNumber   = 0L;
-		File.eof          = FALSE;
-		File.newLine      = TRUE;
+		fgetpos (GSDG.File.fp, &(GSDG.StartOfLine));
+		fgetpos (GSDG.File.fp, &(GSDG.File.filePosition));
+		GSDG.File.currentLine  = NULL;
+		GSDG.File.lineNumber   = 0L;
+		GSDG.File.eof          = FALSE;
+		GSDG.File.newLine      = TRUE;
 
-		if (File.line != NULL)
-			vStringClear (File.line);
+		if (GSDG.File.line != NULL)
+			vStringClear (GSDG.File.line);
 
 		setSourceFileParameters (vStringNewInit (fileName));
-		File.source.lineNumber = 0L;
+		GSDG.File.source.lineNumber = 0L;
 
 		verbose ("OPENING %s as %s language %sfile\n", fileName,
 				getLanguageName (language),
-				File.source.isHeader ? "include " : "");
+				GSDG.File.source.isHeader ? "include " : "");
 	}
 	return opened;
 }
 
 extern void fileClose (void)
 {
-	if (File.fp != NULL)
+	if (GSDG.File.fp != NULL)
 	{
 		/*  The line count of the file is 1 too big, since it is one-based
 		 *  and is incremented upon each newline.
 		 */
 		if (Option.printTotals)
 		{
-			fileStatus *status = eStat (vStringValue (File.name));
-			addTotals (0, File.lineNumber - 1L, status->size);
+			fileStatus *status = eStat (vStringValue (GSDG.File.name));
+			addTotals (0, GSDG.File.lineNumber - 1L, status->size);
 		}
-		fclose (File.fp);
-		File.fp = NULL;
+		fclose (GSDG.File.fp);
+		GSDG.File.fp = NULL;
 	}
 }
 
 extern boolean fileEOF (void)
 {
-	return File.eof;
+	return GSDG.File.eof;
 }
 
 /*  Action to take for each encountered source newline.
  */
 static void fileNewline (void)
 {
-	File.filePosition = StartOfLine;
-	File.newLine = FALSE;
-	File.lineNumber++;
-	File.source.lineNumber++;
-	DebugStatement ( if (Option.breakLine == File.lineNumber) lineBreak (); )
-	DebugStatement ( debugPrintf (DEBUG_RAW, "%6ld: ", File.lineNumber); )
+	GSDG.File.filePosition = GSDG.StartOfLine;
+	GSDG.File.newLine = FALSE;
+	GSDG.File.lineNumber++;
+	GSDG.File.source.lineNumber++;
+	DebugStatement ( if (Option.breakLine == GSDG.File.lineNumber) lineBreak (); )
+	DebugStatement ( debugPrintf (DEBUG_RAW, "%6ld: ", GSDG.File.lineNumber); )
 }
 
 /*  This function reads a single character from the stream, performing newline
@@ -329,11 +333,11 @@ static int iFileGetc (void)
 {
 	int	c;
 readnext:
-	c = getc (File.fp);
+	c = getc (GSDG.File.fp);
 
 	/*	If previous character was a newline, then we're starting a line.
 	 */
-	if (File.newLine  &&  c != EOF)
+	if (GSDG.File.newLine  &&  c != EOF)
 	{
 		fileNewline ();
 		if (c == '#'  &&  Option.lineDirectives)
@@ -342,18 +346,18 @@ readnext:
 				goto readnext;
 			else
 			{
-				fsetpos (File.fp, &StartOfLine);
-				c = getc (File.fp);
+				fsetpos (GSDG.File.fp, &(GSDG.StartOfLine));
+				c = getc (GSDG.File.fp);
 			}
 		}
 	}
 
 	if (c == EOF)
-		File.eof = TRUE;
+		GSDG.File.eof = TRUE;
 	else if (c == NEWLINE)
 	{
-		File.newLine = TRUE;
-		fgetpos (File.fp, &StartOfLine);
+		GSDG.File.newLine = TRUE;
+		fgetpos (GSDG.File.fp, &(GSDG.StartOfLine));
 	}
 	else if (c == CRETURN)
 	{
@@ -362,15 +366,15 @@ readnext:
 		 * and CR-LF (MS-DOS) are converted into a generic newline.
 		 */
 #ifndef macintosh
-		const int next = getc (File.fp);  /* is CR followed by LF? */
+		const int next = getc (GSDG.File.fp);  /* is CR followed by LF? */
 		if (next != NEWLINE)
-			ungetc (next, File.fp);
+			ungetc (next, GSDG.File.fp);
 		else
 #endif
 		{
 			c = NEWLINE;  /* convert CR into newline */
-			File.newLine = TRUE;
-			fgetpos (File.fp, &StartOfLine);
+			GSDG.File.newLine = TRUE;
+			fgetpos (GSDG.File.fp, &(GSDG.StartOfLine));
 		}
 	}
 	DebugStatement ( debugPutc (DEBUG_RAW, c); )
@@ -379,33 +383,33 @@ readnext:
 
 extern void fileUngetc (int c)
 {
-	File.ungetch = c;
+	GSDG.File.ungetch = c;
 }
 
 static vString *iFileGetLine (void)
 {
 	vString *result = NULL;
 	int c;
-	if (File.line == NULL)
-		File.line = vStringNew ();
-	vStringClear (File.line);
+	if (GSDG.File.line == NULL)
+		GSDG.File.line = vStringNew ();
+	vStringClear (GSDG.File.line);
 	do
 	{
 		c = iFileGetc ();
 		if (c != EOF)
-			vStringPut (File.line, c);
-		if (c == '\n'  ||  (c == EOF  &&  vStringLength (File.line) > 0))
+			vStringPut (GSDG.File.line, c);
+		if (c == '\n'  ||  (c == EOF  &&  vStringLength (GSDG.File.line) > 0))
 		{
-			vStringTerminate (File.line);
+			vStringTerminate (GSDG.File.line);
 #ifdef HAVE_REGEX
-			if (vStringLength (File.line) > 0)
-				matchRegex (File.line, File.source.language);
+			if (vStringLength (GSDG.File.line) > 0)
+				matchRegex (GSDG.File.line, GSDG.File.source.language);
 #endif
-			result = File.line;
+			result = GSDG.File.line;
 			break;
 		}
 	} while (c != EOF);
-	Assert (result != NULL  ||  File.eof);
+	Assert (result != NULL  ||  GSDG.File.eof);
 	return result;
 }
 
@@ -419,26 +423,26 @@ extern int fileGetc (void)
 	 *  other processing on it, though, because we already did that the
 	 *  first time it was read through fileGetc ().
 	 */
-	if (File.ungetch != '\0')
+	if (GSDG.File.ungetch != '\0')
 	{
-		c = File.ungetch;
-		File.ungetch = '\0';
+		c = GSDG.File.ungetch;
+		GSDG.File.ungetch = '\0';
 		return c;  /* return here to avoid re-calling debugPutc () */
 	}
 	do
 	{
-		if (File.currentLine != NULL)
+		if (GSDG.File.currentLine != NULL)
 		{
-			c = *File.currentLine++;
+			c = *(GSDG.File).currentLine++;
 			if (c == '\0')
-				File.currentLine = NULL;
+				GSDG.File.currentLine = NULL;
 		}
 		else
 		{
 			vString* const line = iFileGetLine ();
 			if (line != NULL)
-				File.currentLine = (unsigned char*) vStringValue (line);
-			if (File.currentLine == NULL)
+				GSDG.File.currentLine = (unsigned char*) vStringValue (line);
+			if (GSDG.File.currentLine == NULL)
 				c = EOF;
 			else
 				c = '\0';
@@ -548,14 +552,14 @@ extern char *readSourceLine (
 	fpos_t orignalPosition;
 	char *result;
 
-	fgetpos (File.fp, &orignalPosition);
-	fsetpos (File.fp, &location);
+	fgetpos (GSDG.File.fp, &orignalPosition);
+	fsetpos (GSDG.File.fp, &location);
 	if (pSeekValue != NULL)
-		*pSeekValue = ftell (File.fp);
-	result = readLine (vLine, File.fp);
+		*pSeekValue = ftell (GSDG.File.fp);
+	result = readLine (vLine, GSDG.File.fp);
 	if (result == NULL)
-		error (FATAL, "Unexpected end of file: %s", vStringValue (File.name));
-	fsetpos (File.fp, &orignalPosition);
+		error (FATAL, "Unexpected end of file: %s", vStringValue (GSDG.File.name));
+	fsetpos (GSDG.File.fp, &orignalPosition);
 
 	return result;
 }

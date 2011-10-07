@@ -25,6 +25,8 @@
 #include "routines.h"
 #include "vstring.h"
 
+#import "ctags_globals.h"
+
 /*
  *   DATA DEFINITIONS
  */
@@ -155,7 +157,7 @@ static void match_dot_label (char const *p)
 static void findBasicTags (void)
 {
 	const char *line;
-	const char *extension = fileExtension (vStringValue (File.name));
+	const char *extension = fileExtension (vStringValue (GSDG.File.name));
 	KeyWord *keywords;
 
 	if (strcmp (extension, "bb") == 0)

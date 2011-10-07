@@ -71,6 +71,7 @@ static const double delayBetweenSuccessful = 120;
     });
     
     dispatch_source_set_timer(scannerSource, dispatch_time(DISPATCH_TIME_NOW, (delayBetweenSuccessful / 2.0) * NSEC_PER_SEC), 0, 10);
+    dispatch_resume(scannerSource);
 }
 - (void)open {
     indexDB = [[CHXMainDatabase alloc] initWithPath:indexDBPath];
@@ -175,6 +176,7 @@ static const double delayBetweenSuccessful = 120;
     indexer.contents = contents;
     indexer.language = language;;
     indexer.rid = rid;
+    NSLog(@"indexer = %@", indexer);
     indexer.completionBlock = ^{
         
         

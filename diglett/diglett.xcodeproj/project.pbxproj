@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		756A3D49143CFF3600936C8C /* DGCtagsIndexerC.m in Sources */ = {isa = PBXBuildFile; fileRef = 756A3D48143CFF3500936C8C /* DGCtagsIndexerC.m */; };
+		756A3D4C143F699A00936C8C /* ctags_globals.c in Sources */ = {isa = PBXBuildFile; fileRef = 756A3D4B143F699700936C8C /* ctags_globals.c */; };
 		7573E2CA1433CC0A00846BA9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7573E2C91433CC0A00846BA9 /* Foundation.framework */; };
 		7573E2CD1433CC0A00846BA9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7573E2CC1433CC0A00846BA9 /* main.m */; };
 		7573E2D11433CC0A00846BA9 /* diglett.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7573E2D01433CC0A00846BA9 /* diglett.1 */; };
@@ -71,7 +73,7 @@
 		75E5685B14353C6F00174E82 /* DGProject.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685A14353C6F00174E82 /* DGProject.m */; };
 		75E5685E1435411400174E82 /* DGCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5685D1435411400174E82 /* DGCompressor.m */; };
 		75E5686814361CD700174E82 /* DGIndexer.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5686714361CD700174E82 /* DGIndexer.m */; };
-		75E5686B14361CF200174E82 /* DGCtagsIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 75E5686A14361CF100174E82 /* DGCtagsIndexer.mm */; };
+		75E5686B14361CF200174E82 /* DGCtagsIndexer.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5686A14361CF100174E82 /* DGCtagsIndexer.m */; };
 		75E5687014364C0300174E82 /* CHTemporaryFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5686F14364C0300174E82 /* CHTemporaryFile.m */; };
 		75E5687314364C3500174E82 /* NSString+Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E5687214364C3500174E82 /* NSString+Utilities.m */; };
 		75E5687A143746AB00174E82 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E56875143746A800174E82 /* FMDatabase.m */; };
@@ -97,6 +99,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		756A3D47143CFF3500936C8C /* DGCtagsIndexerC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGCtagsIndexerC.h; sourceTree = "<group>"; };
+		756A3D48143CFF3500936C8C /* DGCtagsIndexerC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGCtagsIndexerC.m; sourceTree = "<group>"; };
+		756A3D4B143F699700936C8C /* ctags_globals.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ctags_globals.c; path = indexers/ctags_globals.c; sourceTree = "<group>"; };
+		756A3D4D143F69D400936C8C /* ctags_globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ctags_globals.h; path = indexers/ctags_globals.h; sourceTree = "<group>"; };
 		7573E2C51433CC0A00846BA9 /* diglett */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = diglett; sourceTree = BUILT_PRODUCTS_DIR; };
 		7573E2C91433CC0A00846BA9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		7573E2CC1433CC0A00846BA9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -191,7 +197,7 @@
 		75E5686614361CD700174E82 /* DGIndexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGIndexer.h; sourceTree = "<group>"; };
 		75E5686714361CD700174E82 /* DGIndexer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGIndexer.m; sourceTree = "<group>"; };
 		75E5686914361CF100174E82 /* DGCtagsIndexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGCtagsIndexer.h; sourceTree = "<group>"; };
-		75E5686A14361CF100174E82 /* DGCtagsIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DGCtagsIndexer.mm; sourceTree = "<group>"; };
+		75E5686A14361CF100174E82 /* DGCtagsIndexer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGCtagsIndexer.m; sourceTree = "<group>"; };
 		75E5686D14362A8E00174E82 /* exuberant-options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "exuberant-options.h"; sourceTree = "<group>"; };
 		75E5686E14364C0300174E82 /* CHTemporaryFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CHTemporaryFile.h; path = ../../../Code/CHTemporaryFile.h; sourceTree = "<group>"; };
 		75E5686F14364C0300174E82 /* CHTemporaryFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CHTemporaryFile.m; path = ../../../Code/CHTemporaryFile.m; sourceTree = "<group>"; };
@@ -304,6 +310,8 @@
 				75E5685414353C2E00174E82 /* DGWatcher.m */,
 				75E5685C1435411400174E82 /* DGCompressor.h */,
 				75E5685D1435411400174E82 /* DGCompressor.m */,
+				756A3D4B143F699700936C8C /* ctags_globals.c */,
+				756A3D4D143F69D400936C8C /* ctags_globals.h */,
 			);
 			name = source;
 			path = ../source;
@@ -404,7 +412,9 @@
 				75E5686614361CD700174E82 /* DGIndexer.h */,
 				75E5686714361CD700174E82 /* DGIndexer.m */,
 				75E5686914361CF100174E82 /* DGCtagsIndexer.h */,
-				75E5686A14361CF100174E82 /* DGCtagsIndexer.mm */,
+				75E5686A14361CF100174E82 /* DGCtagsIndexer.m */,
+				756A3D47143CFF3500936C8C /* DGCtagsIndexerC.h */,
+				756A3D48143CFF3500936C8C /* DGCtagsIndexerC.m */,
 				75E5686D14362A8E00174E82 /* exuberant-options.h */,
 			);
 			path = indexers;
@@ -521,7 +531,7 @@
 				75E5685B14353C6F00174E82 /* DGProject.m in Sources */,
 				75E5685E1435411400174E82 /* DGCompressor.m in Sources */,
 				75E5686814361CD700174E82 /* DGIndexer.m in Sources */,
-				75E5686B14361CF200174E82 /* DGCtagsIndexer.mm in Sources */,
+				75E5686B14361CF200174E82 /* DGCtagsIndexer.m in Sources */,
 				75E5687014364C0300174E82 /* CHTemporaryFile.m in Sources */,
 				75E5687314364C3500174E82 /* NSString+Utilities.m in Sources */,
 				75E5687A143746AB00174E82 /* FMDatabase.m in Sources */,
@@ -530,6 +540,8 @@
 				75E56881143746C600174E82 /* CHXDatabase.m in Sources */,
 				75E56882143746C600174E82 /* CHXMainDatabase.m in Sources */,
 				75B27D3B143A416200FA4965 /* sqlite3.c in Sources */,
+				756A3D49143CFF3600936C8C /* DGCtagsIndexerC.m in Sources */,
+				756A3D4C143F699A00936C8C /* ctags_globals.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
