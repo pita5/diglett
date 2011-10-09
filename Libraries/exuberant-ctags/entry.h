@@ -82,7 +82,7 @@ typedef struct sTagEntryInfo {
 /*
 *   GLOBAL VARIABLES
 */
-extern tagFile TagFile;
+//extern tagFile GSDG.TagFile;
 
 /*
 *   FUNCTION PROTOTYPES
@@ -101,3 +101,7 @@ extern void initTagEntry (tagEntryInfo *const e, const char *const name);
 #endif  /* _ENTRY_H */
 
 /* vi:set tabstop=4 shiftwidth=4: */
+
+#define SHOULD_NOT_IMPORT_ENTRY
+#import "ctags_globals.h"
+#undef SHOULD_NOT_IMPORT_ENTRY

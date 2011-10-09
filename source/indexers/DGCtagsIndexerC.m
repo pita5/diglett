@@ -20,7 +20,7 @@ void DGEntryPrint(void* const entry_p) {
     tagEntryInfo entry = *(tagEntryInfo* const)entry_p;
     NSLog(@"lineNumberEntry: %d\n", entry.lineNumberEntry);
     NSLog(@"lineNumber: %lul\n", entry.lineNumber);
-    NSLog(@"language: %@\n", DGNSString(entry.language));
+    //NSLog(@"language: %@\n", DGNSString(entry.language));
     NSLog(@"isFileScope: %d\n", entry.isFileScope);
     NSLog(@"isFileEntry: %d\n", entry.isFileEntry);
     NSLog(@"truncateLine: %d\n", entry.truncateLine);
@@ -31,7 +31,7 @@ void DGEntryPrint(void* const entry_p) {
     
     NSLog(@"access @: %@\n", DGNSString(entry.extensionFields.access));
     NSLog(@"fileScope: %@\n", DGNSString(entry.extensionFields.fileScope));
-    NSLog(@"implementation: %@\n", DGNSString(entry.extensionFields.implementation));
+    //NSLog(@"implementation: %@\n", DGNSString(entry.extensionFields.implementation));
     NSLog(@"inheritance: %@\n", DGNSString(entry.extensionFields.inheritance));
     NSLog(@"scope 0: %@\n", DGNSString(entry.extensionFields.scope[0]));
     NSLog(@"scope 1: %@\n", DGNSString(entry.extensionFields.scope[1]));
@@ -67,11 +67,9 @@ void DGDestroyTagEntry(void* const copytag_v) {
 
 void DGProcessTag(int64_t pass_id, CHXMainDatabase* db, void* const tag_p) {
     tagEntryInfo tag = *(tagEntryInfo* const)tag_p;
-    NSLog(@"--- tagN = %d", tag);
-    DGEntryPrint(tag_p);
+    //DGEntryPrint(tag_p);
     
     int64_t lineNumber = ((int64_t)(tag.lineNumber)) - 1;
-    NSLog(@"lineNumber = %d", lineNumber);
     if (lineNumber < 0)
         return;
     

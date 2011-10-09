@@ -630,18 +630,18 @@ static boolean createTagsForFile (
 static boolean createTagsWithFallback (
 		const char *const fileName, const langType language)
 {
-	const unsigned long numTags	= TagFile.numTags.added;
+	const unsigned long numTags	= GSDG.TagFile.numTags.added;
 	fpos_t tagFilePosition;
 	unsigned int passCount = 0;
 	boolean tagFileResized = FALSE;
 
-	fgetpos (TagFile.fp, &tagFilePosition);
+	fgetpos (GSDG.TagFile.fp, &tagFilePosition);
 	while (createTagsForFile (fileName, language, ++passCount))
 	{
 		/*  Restore prior state of tag file.
 		 */
-		fsetpos (TagFile.fp, &tagFilePosition);
-		TagFile.numTags.added = numTags;
+		fsetpos (GSDG.TagFile.fp, &tagFilePosition);
+		GSDG.TagFile.numTags.added = numTags;
 		tagFileResized = TRUE;
         
 	}

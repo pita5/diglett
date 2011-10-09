@@ -91,10 +91,10 @@ static void setSourceFileParameters (vString *const fileName)
 		GSDG.File.source.tagPath = eStrdup (vStringValue (fileName));
 	else
 		GSDG.File.source.tagPath =
-				relativeFilename (vStringValue (fileName), TagFile.directory);
+				relativeFilename (vStringValue (fileName), GSDG.TagFile.directory);
 
-	if (vStringLength (fileName) > TagFile.max.file)
-		TagFile.max.file = vStringLength (fileName);
+	if (vStringLength (fileName) > GSDG.TagFile.max.file)
+		GSDG.TagFile.max.file = vStringLength (fileName);
 
 	GSDG.File.source.isHeader = isIncludeFile (vStringValue (fileName));
 	GSDG.File.source.language = getFileLanguage (vStringValue (fileName));

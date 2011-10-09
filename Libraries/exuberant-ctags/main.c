@@ -421,8 +421,8 @@ static clock_t clock (void)
 
 static void printTotals (const clock_t *const timeStamps)
 {
-	const unsigned long totalTags = TagFile.numTags.added +
-									TagFile.numTags.prev;
+	const unsigned long totalTags = GSDG.TagFile.numTags.added +
+									GSDG.TagFile.numTags.prev;
 
 	fprintf (errout, "%ld file%s, %ld line%s (%ld kB) scanned",
 			Totals.files, plural (Totals.files),
@@ -442,7 +442,7 @@ static void printTotals (const clock_t *const timeStamps)
 	fputc ('\n', errout);
 
 	fprintf (errout, "%lu tag%s added to tag file",
-			TagFile.numTags.added, plural (TagFile.numTags.added));
+			GSDG.TagFile.numTags.added, plural (GSDG.TagFile.numTags.added));
 	if (Option.append)
 		fprintf (errout, " (now %lu tags)", totalTags);
 	fputc ('\n', errout);
@@ -459,7 +459,7 @@ static void printTotals (const clock_t *const timeStamps)
 
 #ifdef DEBUG
 	fprintf (errout, "longest tag line = %lu\n",
-			(unsigned long) TagFile.max.line);
+			(unsigned long) GSDG.TagFile.max.line);
 #endif
 }
 

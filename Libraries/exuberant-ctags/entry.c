@@ -77,6 +77,8 @@
 *   DATA DEFINITIONS
 */
 
+#import "ctags_globals.h"
+#if 0
 tagFile TagFile = {
     NULL,               /* tag file name */
     NULL,               /* tag file directory (absolute) */
@@ -86,7 +88,7 @@ tagFile TagFile = {
     { NULL, NULL, 0 },  /* etags */
     NULL                /* vLine */
 };
-
+#endif
 static boolean TagsToStdout = FALSE;
 
 /*
@@ -106,15 +108,15 @@ extern int ftruncate (int fd, off_t length);
 
 extern void freeTagFileResources (void)
 {
-	if (TagFile.directory != NULL)
-		eFree (TagFile.directory);
-	vStringDelete (TagFile.vLine);
-    memset(&TagFile, sizeof(TagFile), 0);
+	if (GSDG.TagFile.directory != NULL)
+		eFree (GSDG.TagFile.directory);
+	vStringDelete (GSDG.TagFile.vLine);
+    memset(&GSDG.TagFile, sizeof(GSDG.TagFile), 0);
 }
 
 extern const char *tagFileName (void)
 {
-	return TagFile.name;
+	return GSDG.TagFile.name;
 }
 
 /*
@@ -123,11 +125,11 @@ extern const char *tagFileName (void)
 
 static void rememberMaxLengths (const size_t nameLength, const size_t lineLength)
 {
-	if (nameLength > TagFile.max.tag)
-		TagFile.max.tag = nameLength;
+	if (nameLength > GSDG.TagFile.max.tag)
+		GSDG.TagFile.max.tag = nameLength;
 
-	if (lineLength > TagFile.max.line)
-		TagFile.max.line = lineLength;
+	if (lineLength > GSDG.TagFile.max.line)
+		GSDG.TagFile.max.line = lineLength;
 }
 
 static void writePseudoTag (
@@ -136,9 +138,9 @@ static void writePseudoTag (
 		const char *const pattern)
 {
 	const int length = fprintf (
-			TagFile.fp, "%s%s\t%s\t/%s/\n",
+			GSDG.TagFile.fp, "%s%s\t%s\t/%s/\n",
 			PSEUDO_TAG_PREFIX, tagName, fileName, pattern);
-	++TagFile.numTags.added;
+	++GSDG.TagFile.numTags.added;
 	rememberMaxLengths (strlen (tagName), (size_t) length);
 }
 
@@ -224,7 +226,7 @@ static long unsigned int updatePseudoTags (FILE *const fp)
 	Assert (entryLength < maxEntryLength);
 
 	fgetpos (fp, &startOfLine);
-	line = readLine (TagFile.vLine, fp);
+	line = readLine (GSDG.TagFile.vLine, fp);
 	while (line != NULL  &&  line [0] == entry [0])
 	{
 		++linesRead;
@@ -240,12 +242,12 @@ static long unsigned int updatePseudoTags (FILE *const fp)
 			}
 			fgetpos (fp, &startOfLine);
 		}
-		line = readLine (TagFile.vLine, fp);
+		line = readLine (GSDG.TagFile.vLine, fp);
 	}
 	while (line != NULL)  /* skip to end of file */
 	{
 		++linesRead;
-		line = readLine (TagFile.vLine, fp);
+		line = readLine (GSDG.TagFile.vLine, fp);
 	}
 	return linesRead;
 }
@@ -328,7 +330,7 @@ static boolean isTagFile (const char *const filename)
 		ok = TRUE;
 	else if (fp != NULL)
 	{
-		const char *line = readLine (TagFile.vLine, fp);
+		const char *line = readLine (GSDG.TagFile.vLine, fp);
 
 		if (line == NULL)
 			ok = TRUE;
@@ -382,61 +384,61 @@ extern void openTagFile (void)
 	setDefaultTagFileName ();
 	TagsToStdout = isDestinationStdout ();
 
-	if (TagFile.vLine == NULL)
-		TagFile.vLine = vStringNew ();
+	if (GSDG.TagFile.vLine == NULL)
+		GSDG.TagFile.vLine = vStringNew ();
 
 	/*  Open the tags file.
 	 */
 	if (TagsToStdout)
-		TagFile.fp = tempFile ("w", &TagFile.name);
+		GSDG.TagFile.fp = tempFile ("w", &GSDG.TagFile.name);
 	else
 	{
 		boolean fileExists;
 
 		setDefaultTagFileName ();
-		TagFile.name = eStrdup (Option.tagFileName);
-		fileExists = doesFileExist (TagFile.name);
-		if (fileExists  &&  ! isTagFile (TagFile.name))
+		GSDG.TagFile.name = eStrdup (Option.tagFileName);
+		fileExists = doesFileExist (GSDG.TagFile.name);
+		if (fileExists  &&  ! isTagFile (GSDG.TagFile.name))
 			error (FATAL,
 			  "\"%s\" doesn't look like a tag file; I refuse to overwrite it.",
-				  TagFile.name);
+				  GSDG.TagFile.name);
 
 		if (Option.etags)
 		{
 			if (Option.append  &&  fileExists)
-				TagFile.fp = fopen (TagFile.name, "a+b");
+				GSDG.TagFile.fp = fopen (GSDG.TagFile.name, "a+b");
 			else
-				TagFile.fp = fopen (TagFile.name, "w+b");
+				GSDG.TagFile.fp = fopen (GSDG.TagFile.name, "w+b");
 		}
 		else
 		{
 			if (Option.append  &&  fileExists)
 			{
-				TagFile.fp = fopen (TagFile.name, "r+");
-				if (TagFile.fp != NULL)
+				GSDG.TagFile.fp = fopen (GSDG.TagFile.name, "r+");
+				if (GSDG.TagFile.fp != NULL)
 				{
-					TagFile.numTags.prev = updatePseudoTags (TagFile.fp);
-					fclose (TagFile.fp);
-					TagFile.fp = fopen (TagFile.name, "a+");
+					GSDG.TagFile.numTags.prev = updatePseudoTags (GSDG.TagFile.fp);
+					fclose (GSDG.TagFile.fp);
+					GSDG.TagFile.fp = fopen (GSDG.TagFile.name, "a+");
 				}
 			}
 			else
 			{
-				TagFile.fp = fopen (TagFile.name, "w");
-				if (TagFile.fp != NULL)
+				GSDG.TagFile.fp = fopen (GSDG.TagFile.name, "w");
+				if (GSDG.TagFile.fp != NULL)
 					addPseudoTags ();
 			}
 		}
-		if (TagFile.fp == NULL)
+		if (GSDG.TagFile.fp == NULL)
 		{
 			error (FATAL | PERROR, "cannot open tag file");
 			exit (1);
 		}
 	}
 	if (TagsToStdout)
-		TagFile.directory = eStrdup (CurrentDirectory);
+		GSDG.TagFile.directory = eStrdup (CurrentDirectory);
 	else
-		TagFile.directory = absoluteDirname (TagFile.name);
+		GSDG.TagFile.directory = absoluteDirname (GSDG.TagFile.name);
 }
 
 #ifdef USE_REPLACEMENT_TRUNCATE
@@ -460,7 +462,7 @@ static int replacementTruncate (const char *const name, const long size)
 
 static void sortTagFile (void)
 {
-	if (TagFile.numTags.added > 0L)
+	if (GSDG.TagFile.numTags.added > 0L)
 	{
 		if (Option.sorted != SO_UNSORTED)
 		{
@@ -483,12 +485,12 @@ static void resizeTagFile (const long newSize)
 	int result;
 
 #ifdef USE_REPLACEMENT_TRUNCATE
-	result = replacementTruncate (TagFile.name, newSize);
+	result = replacementTruncate (GSDG.TagFile.name, newSize);
 #else
 # ifdef HAVE_TRUNCATE
-	result = truncate (TagFile.name, (off_t) newSize);
+	result = truncate (GSDG.TagFile.name, (off_t) newSize);
 # else
-	const int fd = open (TagFile.name, O_RDWR);
+	const int fd = open (GSDG.TagFile.name, O_RDWR);
 
 	if (fd == -1)
 		result = -1;
@@ -527,44 +529,44 @@ extern void closeTagFile (const boolean resize)
 	long desiredSize, size;
 
 	if (Option.etags)
-		writeEtagsIncludes (TagFile.fp);
-	desiredSize = ftell (TagFile.fp);
-	fseek (TagFile.fp, 0L, SEEK_END);
-	size = ftell (TagFile.fp);
-	fclose (TagFile.fp);
+		writeEtagsIncludes (GSDG.TagFile.fp);
+	desiredSize = ftell (GSDG.TagFile.fp);
+	fseek (GSDG.TagFile.fp, 0L, SEEK_END);
+	size = ftell (GSDG.TagFile.fp);
+	fclose (GSDG.TagFile.fp);
 	if (resize  &&  desiredSize < size)
 	{
 		DebugStatement (
 			debugPrintf (DEBUG_STATUS, "shrinking %s from %ld to %ld bytes\n",
-				TagFile.name, size, desiredSize); )
+				GSDG.TagFile.name, size, desiredSize); )
 		resizeTagFile (desiredSize);
 	}
 	sortTagFile ();
-	eFree (TagFile.name);
-	TagFile.name = NULL;
+	eFree (GSDG.TagFile.name);
+	GSDG.TagFile.name = NULL;
 }
 
 extern void beginEtagsFile (void)
 {
-	TagFile.etags.fp = tempFile ("w+b", &TagFile.etags.name);
-	TagFile.etags.byteCount = 0;
+	GSDG.TagFile.etags.fp = tempFile ("w+b", &GSDG.TagFile.etags.name);
+	GSDG.TagFile.etags.byteCount = 0;
 }
 
 extern void endEtagsFile (const char *const name)
 {
 	const char *line;
 
-	fprintf (TagFile.fp, "\f\n%s,%ld\n", name, (long) TagFile.etags.byteCount);
-	if (TagFile.etags.fp != NULL)
+	fprintf (GSDG.TagFile.fp, "\f\n%s,%ld\n", name, (long) GSDG.TagFile.etags.byteCount);
+	if (GSDG.TagFile.etags.fp != NULL)
 	{
-		rewind (TagFile.etags.fp);
-		while ((line = readLine (TagFile.vLine, TagFile.etags.fp)) != NULL)
-			fputs (line, TagFile.fp);
-		fclose (TagFile.etags.fp);
-		remove (TagFile.etags.name);
-		eFree (TagFile.etags.name);
-		TagFile.etags.fp = NULL;
-		TagFile.etags.name = NULL;
+		rewind (GSDG.TagFile.etags.fp);
+		while ((line = readLine (GSDG.TagFile.vLine, GSDG.TagFile.etags.fp)) != NULL)
+			fputs (line, GSDG.TagFile.fp);
+		fclose (GSDG.TagFile.etags.fp);
+		remove (GSDG.TagFile.etags.name);
+		eFree (GSDG.TagFile.etags.name);
+		GSDG.TagFile.etags.fp = NULL;
+		GSDG.TagFile.etags.name = NULL;
 	}
 }
 
@@ -645,18 +647,18 @@ static size_t writeCompactSourceLine (FILE *const fp, const char *const line)
 static int writeXrefEntry (const tagEntryInfo *const tag)
 {
 	const char *const line =
-			readSourceLine (TagFile.vLine, tag->filePosition, NULL);
+			readSourceLine (GSDG.TagFile.vLine, tag->filePosition, NULL);
 	int length;
 
 	if (Option.tagFileFormat == 1)
-		length = fprintf (TagFile.fp, "%-16s %4lu %-16s ", tag->name,
+		length = fprintf (GSDG.TagFile.fp, "%-16s %4lu %-16s ", tag->name,
 				tag->lineNumber, tag->sourceFileName);
 	else
-		length = fprintf (TagFile.fp, "%-16s %-10s %4lu %-16s ", tag->name,
+		length = fprintf (GSDG.TagFile.fp, "%-16s %-10s %4lu %-16s ", tag->name,
 				tag->kindName, tag->lineNumber, tag->sourceFileName);
 
-	length += writeCompactSourceLine (TagFile.fp, line);
-	putc (NEWLINE, TagFile.fp);
+	length += writeCompactSourceLine (GSDG.TagFile.fp, line);
+	putc (NEWLINE, GSDG.TagFile.fp);
 	++length;
 
 	return length;
@@ -684,23 +686,23 @@ static int writeEtagsEntry (const tagEntryInfo *const tag)
 	int length;
 
 	if (tag->isFileEntry)
-		length = fprintf (TagFile.etags.fp, "\177%s\001%lu,0\n",
+		length = fprintf (GSDG.TagFile.etags.fp, "\177%s\001%lu,0\n",
 				tag->name, tag->lineNumber);
 	else
 	{
 		long seekValue;
 		char *const line =
-				readSourceLine (TagFile.vLine, tag->filePosition, &seekValue);
+				readSourceLine (GSDG.TagFile.vLine, tag->filePosition, &seekValue);
 
 		if (tag->truncateLine)
 			truncateTagLine (line, tag->name, TRUE);
 		else
 			line [strlen (line) - 1] = '\0';
 
-		length = fprintf (TagFile.etags.fp, "%s\177%s\001%lu,%ld\n", line,
+		length = fprintf (GSDG.TagFile.etags.fp, "%s\177%s\001%lu,%ld\n", line,
 				tag->name, tag->lineNumber, seekValue);
 	}
-	TagFile.etags.byteCount += length;
+	GSDG.TagFile.etags.byteCount += length;
 
 	return length;
 }
@@ -717,51 +719,51 @@ static int addExtensionFields (const tagEntryInfo *const tag)
 
 	if (tag->kindName != NULL && (Option.extensionFields.kindLong  ||
 		 (Option.extensionFields.kind  && tag->kind == '\0')))
-		length += fprintf (TagFile.fp,"%s\t%s%s", sep, kindKey, tag->kindName);
+		length += fprintf (GSDG.TagFile.fp,"%s\t%s%s", sep, kindKey, tag->kindName);
 	else if (tag->kind != '\0'  && (Option.extensionFields.kind  ||
 			(Option.extensionFields.kindLong  &&  tag->kindName == NULL)))
-		length += fprintf (TagFile.fp, "%s\t%s%c", sep, kindKey, tag->kind);
+		length += fprintf (GSDG.TagFile.fp, "%s\t%s%c", sep, kindKey, tag->kind);
 
 	if (Option.extensionFields.lineNumber)
-		length += fprintf (TagFile.fp, "%s\tline:%ld", sep, tag->lineNumber);
+		length += fprintf (GSDG.TagFile.fp, "%s\tline:%ld", sep, tag->lineNumber);
 
 	if (Option.extensionFields.language  &&  tag->language != NULL)
-		length += fprintf (TagFile.fp, "%s\tlanguage:%s", sep, tag->language);
+		length += fprintf (GSDG.TagFile.fp, "%s\tlanguage:%s", sep, tag->language);
 
 	if (Option.extensionFields.scope  &&
 			tag->extensionFields.scope [0] != NULL  &&
 			tag->extensionFields.scope [1] != NULL)
-		length += fprintf (TagFile.fp, "%s\t%s:%s", sep,
+		length += fprintf (GSDG.TagFile.fp, "%s\t%s:%s", sep,
 				tag->extensionFields.scope [0],
 				tag->extensionFields.scope [1]);
 
 	if (Option.extensionFields.typeRef  &&
 			tag->extensionFields.typeRef [0] != NULL  &&
 			tag->extensionFields.typeRef [1] != NULL)
-		length += fprintf (TagFile.fp, "%s\ttyperef:%s:%s", sep,
+		length += fprintf (GSDG.TagFile.fp, "%s\ttyperef:%s:%s", sep,
 				tag->extensionFields.typeRef [0],
 				tag->extensionFields.typeRef [1]);
 
 	if (Option.extensionFields.fileScope  &&  tag->isFileScope)
-		length += fprintf (TagFile.fp, "%s\tfile:", sep);
+		length += fprintf (GSDG.TagFile.fp, "%s\tfile:", sep);
 
 	if (Option.extensionFields.inheritance  &&
 			tag->extensionFields.inheritance != NULL)
-		length += fprintf (TagFile.fp, "%s\tinherits:%s", sep,
+		length += fprintf (GSDG.TagFile.fp, "%s\tinherits:%s", sep,
 				tag->extensionFields.inheritance);
 
 	if (Option.extensionFields.access  &&  tag->extensionFields.access != NULL)
-		length += fprintf (TagFile.fp, "%s\taccess:%s", sep,
+		length += fprintf (GSDG.TagFile.fp, "%s\taccess:%s", sep,
 				tag->extensionFields.access);
 
 	if (Option.extensionFields.implementation  &&
 			tag->extensionFields.implementation != NULL)
-		length += fprintf (TagFile.fp, "%s\timplementation:%s", sep,
+		length += fprintf (GSDG.TagFile.fp, "%s\timplementation:%s", sep,
 				tag->extensionFields.implementation);
 
 	if (Option.extensionFields.signature  &&
 			tag->extensionFields.signature != NULL)
-		length += fprintf (TagFile.fp, "%s\tsignature:%s", sep,
+		length += fprintf (GSDG.TagFile.fp, "%s\tsignature:%s", sep,
 				tag->extensionFields.signature);
 
 	return length;
@@ -770,7 +772,7 @@ static int addExtensionFields (const tagEntryInfo *const tag)
 
 static int writePatternEntry (const tagEntryInfo *const tag)
 {
-	char *const line = readSourceLine (TagFile.vLine, tag->filePosition, NULL);
+	char *const line = readSourceLine (GSDG.TagFile.vLine, tag->filePosition, NULL);
 	const int searchChar = Option.backward ? '?' : '/';
 	boolean newlineTerminated;
 	int length = 0;
@@ -781,21 +783,21 @@ static int writePatternEntry (const tagEntryInfo *const tag)
 		truncateTagLine (line, tag->name, FALSE);
 	newlineTerminated = (boolean) (line [strlen (line) - 1] == '\n');
 
-	length += fprintf (TagFile.fp, "%c^", searchChar);
-	length += writeSourceLine (TagFile.fp, line);
-	length += fprintf (TagFile.fp, "%s%c", newlineTerminated ? "$":"", searchChar);
+	length += fprintf (GSDG.TagFile.fp, "%c^", searchChar);
+	length += writeSourceLine (GSDG.TagFile.fp, line);
+	length += fprintf (GSDG.TagFile.fp, "%s%c", newlineTerminated ? "$":"", searchChar);
 
 	return length;
 }
 
 static int writeLineNumberEntry (const tagEntryInfo *const tag)
 {
-	return fprintf (TagFile.fp, "%lu", tag->lineNumber);
+	return fprintf (GSDG.TagFile.fp, "%lu", tag->lineNumber);
 }
 
 static int writeCtagsEntry (const tagEntryInfo *const tag)
 {
-	int length = fprintf (TagFile.fp, "%s\t%s\t",
+	int length = fprintf (GSDG.TagFile.fp, "%s\t%s\t",
 		tag->name, tag->sourceFileName);
 
 	if (tag->lineNumberEntry)
@@ -806,7 +808,7 @@ static int writeCtagsEntry (const tagEntryInfo *const tag)
 	if (includeExtensionFlags ())
 		length += addExtensionFields (tag);
 
-	length += fprintf (TagFile.fp, "\n");
+	length += fprintf (GSDG.TagFile.fp, "\n");
 
 	return length;
 }
@@ -907,7 +909,7 @@ static tagEntryInfo* DGCopyTagEntry(const tagEntryInfo *const tag) {
             copytag->extensionFields.typeRef[1] = DGStringMallocCopy(tag->extensionFields.typeRef[1]);
         }
         
-        char *const sourceLine = readSourceLine(TagFile.vLine, tag->filePosition, NULL);
+        char *const sourceLine = readSourceLine(GSDG.TagFile.vLine, tag->filePosition, NULL);
         
         if (sourceLine) {
             copytag->extensionFields.sourceLine = DGStringMallocCopy(sourceLine);
@@ -950,9 +952,9 @@ extern void makeTagEntry(const tagEntryInfo *const tag)
 		else
 			length = writeCtagsEntry (tag);
 
-		++TagFile.numTags.added;
+		++GSDG.TagFile.numTags.added;
 		rememberMaxLengths (strlen (tag->name), (size_t) length);
-		DebugStatement ( fflush (TagFile.fp); )
+		DebugStatement ( fflush (GSDG.TagFile.fp); )
 	}
 }
 

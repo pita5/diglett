@@ -769,7 +769,7 @@ extern boolean isExcludedFile (const char* const name)
 #ifdef AMIGA
 	/* not a good solution, but the only one which works often */
 	if (! result)
-		result = (boolean) (strcmp (name, TagFile.name) == 0);
+		result = (boolean) (strcmp (name, GSDG.TagFile.name) == 0);
 #endif
 	return result;
 }

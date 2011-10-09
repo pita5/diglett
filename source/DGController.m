@@ -26,9 +26,17 @@
     if (self) {
         // A map from project identifier UUIDs to DGProject
         projectMap = [[NSMutableDictionary alloc] init];
+        [self performSelector:@selector(registerForProcessQuit) withObject:nil afterDelay:0.0];
     }
     
     return self;
+}
+- (void)registerForProcessQuit {
+    dispatch_source_t s = dispatch_source_create(DISPATCH_SOURCE_TYPE_PROC, getppid(), DISPATCH_PROC_EXIT, dispatch_get_global_queue(0, 0));
+    dispatch_source_set_event_handler(s, ^(void) {
+        kill(getpid(), 9);
+    });
+    dispatch_resume(s);
 }
 - (void)removeProject:(DGProject *)project {
     NSArray *keys = [projectMap allKeysForObject:project];
@@ -45,7 +53,7 @@
 #pragma mark Input Messages
 
 - (void)didReceiveNotification:(NSNotification *)notif {
-    NSLog(@"RECEIVED NOTIFICATION DIGLETT:: %@", notif);
+//    NSLog(@"RECEIVED NOTIFICATION DIGLETT:: %@", notif);
     NSString *name = [[notif userInfo] valueForKey:@"kind"];//[notif name];
     if ([name isEqual:@"CHDiglettProjectOpen"])
         [self project_open:[notif userInfo]];
@@ -151,7 +159,7 @@
         proj = [self projectForMessageArgs:args];
     }
     
-    NSLog(@"[self projectForMessageArgs:args] = %@", proj);
+    //NSLog(@"[self projectForMessageArgs:args] = %@", proj);
     [proj forceIndexFile:[args valueForKey:@"path"] args:args];
 }
 

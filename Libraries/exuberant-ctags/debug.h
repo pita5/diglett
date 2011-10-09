@@ -11,6 +11,11 @@
 #ifndef _DEBUG_H
 #define _DEBUG_H
 
+#ifdef DEBUG
+#undef DEBUG
+#define NDEBUG
+#endif
+
 /*
 *   Include files
 */

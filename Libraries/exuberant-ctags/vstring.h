@@ -23,9 +23,9 @@
 /*
 *   MACROS
 */
-#ifndef DEBUG
+//#ifndef DEBUG
 # define VSTRING_PUTC_MACRO 1
-#endif
+//#endif
 #ifdef VSTRING_PUTC_MACRO
 #define vStringPut(s,c) \
 	(void)(((s)->length + 1 == (s)->size ? vStringAutoResize (s) : 0), \

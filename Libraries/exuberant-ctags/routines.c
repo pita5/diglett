@@ -212,6 +212,7 @@ extern const char *getExecutablePath (void)
 extern void error (
 		const errorSelection selection, const char *const format, ...)
 {
+    return;
 	va_list ap;
 
 	va_start (ap, format);

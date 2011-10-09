@@ -30,7 +30,7 @@ void DGExCtag_PushTagEntry(void* const tag)
 {
     if (!DGExCtag_TagEntryQueue)
         DGExCtag_TagEntryQueue = [[NSPointerArray alloc] initWithOptions:NSPointerFunctionsOpaqueMemory];                                   
-    NSLog(@"PUSH BACK: %d", tag);
+//    NSLog(@"PUSH BACK: %d", tag);
     [DGExCtag_TagEntryQueue addPointer:tag];
     //DGExCtag_TagEntryQueue.push_back(tag);
 }
@@ -120,18 +120,25 @@ void DGExCtag_PushTagEntry(void* const tag)
             "--sort=no",
             // put --langdef directives here, once gnuregex is working
             // #include "exuberant-options.h"
-            "-f -",
+            "-f /dev/null",
             [inputPath UTF8String],
             NULL
         };
         
+        int stdin = dup(0);  int stdout = dup(1);  int stderr = dup(2);
+        int null = open("/dev/null", O_RDWR);
+        dup2(null, 0);  dup2(null, 1);  dup2(null, 2);
+        close(null); null = -1;
         
         // TODO: Put this into a dylib, then dlopen/dlclose on each iteration to clear globals
         ctags_main(sizeof(args) / sizeof(const char *) - 1, args);
         
-        NSLog(@"DGExCtag_TagEntryQueue = %d", [DGExCtag_TagEntryQueue count]);
+        dup2(stdin, 0);  dup2(stdout, 1);  dup2(stderr, 2);
+        close(stdin);  close(stdout);  close(stderr);
         
         rv = [DGExCtag_TagEntryQueue copy];
+        [DGExCtag_TagEntryQueue setCount:0];
+        NSLog(@"DGExCtag_TagEntryQueue KKKKKK = %d", [DGExCtag_TagEntryQueue count]);
         
         [self fillFrom:rv finishedBlock:finishedBlock];
     });
