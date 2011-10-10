@@ -7,3 +7,15 @@
 #endif
 
 #define DIGLETT
+
+#define CH_UNIALIGN 16
+#define dg_malloc_dg(x) arena_malloc(ctags_arena, x, CH_UNIALIGN)
+
+void* dg_calloc_dg(size_t x, size_t y) {
+    void* p = arena_malloc(ctags_arena, x * y, CH_UNIALIGN);
+    memset(p, 0, x * y);
+    return p;
+}
+
+#define dg_realloc_dg(x, y) arena_realloc(ctags_arena, x, y, CH_UNIALIGN)
+#define dg_free_dg(x) arena_free(ctags_arena, x)
