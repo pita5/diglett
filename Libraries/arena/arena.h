@@ -30,7 +30,7 @@
 #include <stdarg.h>	/* Be helpful with va_list */
 
 
-typedef struct arena ARENA;
+//typedef struct arena struct arena;
 
 
 extern const struct arena_options {
@@ -39,33 +39,33 @@ extern const struct arena_options {
 } arena_defaults;
 
 
-ARENA *arena_open(const struct arena_options *, const struct arena_prototype *);
+struct arena *arena_open(const struct arena_options *, const struct arena_prototype *);
 
-void arena_close(ARENA *);
+void arena_close(struct arena *);
 
-const struct arena_prototype *arena_export(ARENA *);
+const struct arena_prototype *arena_export(struct arena *);
 
-void *arena_malloc(ARENA *, size_t, size_t);
+void *arena_malloc(struct arena *, size_t, size_t);
 
-void *arena_realloc(ARENA *, void *, size_t, size_t);
+void *arena_realloc(struct arena *, void *, size_t, size_t);
 
-void arena_free(ARENA *, void *);
+void arena_free(struct arena *, void *);
 
-void arena_mark(ARENA *, void **);
+void arena_mark(struct arena *, void **);
 
-void arena_reset(ARENA *, void *);
+void arena_reset(struct arena *, void *);
 
-ARENA *arena_import(const struct arena_prototype *);
+struct arena *arena_import(const struct arena_prototype *);
 
-const char *arena_strerror(ARENA *);
+const char *arena_strerror(struct arena *);
 
-void arena_clearerr(ARENA *);
+void arena_clearerr(struct arena *);
 
-char *arena_strdup(ARENA *, const char *);
+char *arena_strdup(struct arena *, const char *);
 
-char *arena_strndup(ARENA *, const char *, size_t);
+char *arena_strndup(struct arena *, const char *, size_t);
 
-void *arena_memdup(ARENA *, const void *, size_t);
+void *arena_memdup(struct arena *, const void *, size_t);
 
 #ifndef __GNUC__
 #ifndef __attribute__
@@ -73,16 +73,16 @@ void *arena_memdup(ARENA *, const void *, size_t);
 #endif
 #endif
 
-int arena_vasprintf(ARENA *, char **, const char *, va_list)
+int arena_vasprintf(struct arena *, char **, const char *, va_list)
 	__attribute__((__format__ (printf, 3, 0)));
 
-int arena_asprintf(ARENA *, char **, const char *, ...)
+int arena_asprintf(struct arena *, char **, const char *, ...)
 	__attribute__((__format__ (printf, 3, 4)));
 
-char *arena_vsprintf(ARENA *, const char *, va_list)
+char *arena_vsprintf(struct arena *, const char *, va_list)
 	__attribute__((__format__ (printf, 2, 0)));
 
-char *arena_sprintf(ARENA *, const char *, ...)
+char *arena_sprintf(struct arena *, const char *, ...)
 	__attribute__((__format__ (printf, 2, 3)));
 
 #endif /* ARENA_ARENA_H */

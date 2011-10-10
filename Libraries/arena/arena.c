@@ -497,7 +497,7 @@ char *arena_sprintf(struct arena *P, const char *fmt, ...) {
 
 
 void test0(int argc, char *argv[]) {
-	ARENA *a;
+	struct arena *a;
 	struct arena_options opts = arena_defaults;
 	char *list[256];
 	int i, n;

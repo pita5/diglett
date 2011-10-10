@@ -107,6 +107,7 @@
  * 	RETURN VALUE
  * 		None.
  */
+/*
 typedef struct arena_prototype {
 	void *(*malloc)(const struct arena_prototype *, size_t, size_t);
 
@@ -120,7 +121,7 @@ typedef struct arena_prototype {
 
 	void (*clearerr)(const struct arena_prototype *);
 } arena_t;
-
+*/
 
 /*
  * Special string pointer used to return "no error" from the strerror()

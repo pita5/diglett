@@ -100,7 +100,8 @@ void DGExCtag_PushTagEntry(void* const tag)
         dispatch_async(dispatch_get_main_queue(), completionBlock);
 }
 
-ARENA* ctags_arena;
+struct arena* ctags_arena;
+const struct arena_prototype* ctags_arena_exported;
 
 - (void)parseFilePath:(NSString *)inputPath withCtagsLanguage:(NSString *)ctagsLanguage finishedBlock:(dispatch_block_t)finishedBlock
 {  
@@ -135,7 +136,7 @@ ARENA* ctags_arena;
         const struct arena_options aropt;
         const struct arena_prototype arprot;
         ctags_arena = arena_open(&arena_defaults, 0);
-        
+        ctags_arena_exported = arena_export(ctags_arena);
         
         int stdin = dup(0);  int stdout = dup(1);  int stderr = dup(2);
         int null = open("/dev/null", O_RDWR);
@@ -155,6 +156,7 @@ ARENA* ctags_arena;
         [self fillFrom:rv finishedBlock:finishedBlock];
         
         arena_close(ctags_arena);
+        ctags_arena = NULL;
     });
 }
 

@@ -237,7 +237,7 @@ extern void error (
 
 extern void *eMalloc (const size_t size)
 {
-	void *buffer = malloc (size);
+	void *buffer = dg_malloc_dg (size);
 
 	if (buffer == NULL)
 		error (FATAL, "out of memory");
@@ -247,7 +247,7 @@ extern void *eMalloc (const size_t size)
 
 extern void *eCalloc (const size_t count, const size_t size)
 {
-	void *buffer = calloc (count, size);
+	void *buffer = dg_calloc_dg (count, size);
 
 	if (buffer == NULL)
 		error (FATAL, "out of memory");
@@ -262,7 +262,7 @@ extern void *eRealloc (void *const ptr, const size_t size)
 		buffer = eMalloc (size);
 	else
 	{
-		buffer = realloc (ptr, size);
+		buffer = dg_realloc_dg (ptr, size);
 		if (buffer == NULL)
 			error (FATAL, "out of memory");
 	}
@@ -272,7 +272,7 @@ extern void *eRealloc (void *const ptr, const size_t size)
 extern void eFree (void *const ptr)
 {
 	Assert (ptr != NULL);
-	free (ptr);
+	dg_free_dg (ptr);
 }
 
 /*
@@ -559,8 +559,8 @@ extern boolean isSameFile (const char *const name1, const char *const name2)
 #else
 		result = (boolean) (strcmp (n1, n2) == 0);
 #endif
-		free (n1);
-		free (n2);
+		dg_free_dg (n1);
+		dg_free_dg (n2);
 	}
 #endif
 	return result;
@@ -845,7 +845,7 @@ extern char* relativeFilename (const char *file, const char *dir)
 
 	/* Add the file name relative to the common root of file and dir. */
 	strcat (res, fp + 1);
-	free (absdir);
+	dg_free_dg (absdir);
 
 	return res;
 }

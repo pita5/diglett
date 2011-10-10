@@ -2,20 +2,52 @@
 // Prefix header for all source files of the 'diglett' target in the 'diglett' project
 //
 
+#ifndef PREFIXH
+#define PREFIXH
+
+
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
 #endif
 
 #define DIGLETT
 
-#define CH_UNIALIGN 16
-#define dg_malloc_dg(x) arena_malloc(ctags_arena, x, CH_UNIALIGN)
+#import <stddef.h>
+#import <string.h>
 
-void* dg_calloc_dg(size_t x, size_t y) {
-    void* p = arena_malloc(ctags_arena, x * y, CH_UNIALIGN);
+struct arena;
+struct arena_prototype;
+
+typedef struct arena_prototype {
+	void *(*malloc)(const struct arena_prototype *, size_t, size_t);
+    
+	void *(*realloc)(const struct arena_prototype *, void *, size_t, size_t);
+    
+	void (*free)(const struct arena_prototype *, void *);
+    
+	const char *(*instanceof)(const struct arena_prototype *);
+    
+	const char *(*strerror)(const struct arena_prototype *);
+    
+	void (*clearerr)(const struct arena_prototype *);
+} arena_t;
+
+extern struct arena* ctags_arena;
+extern const struct arena_prototype* ctags_arena_exported;
+
+#define CH_UNIALIGN 16
+#define dg_malloc_dg(x) ctags_arena_exported->malloc(ctags_arena_exported, x, CH_UNIALIGN)
+
+void *arena_malloc(struct arena *, size_t, size_t);
+
+static void* dg_calloc_dg(size_t x, size_t y) {
+    void* p = ctags_arena_exported->malloc(ctags_arena_exported, x * y, CH_UNIALIGN);
     memset(p, 0, x * y);
     return p;
 }
 
-#define dg_realloc_dg(x, y) arena_realloc(ctags_arena, x, y, CH_UNIALIGN)
-#define dg_free_dg(x) arena_free(ctags_arena, x)
+#define dg_realloc_dg(x, y) ctags_arena_exported->realloc(ctags_arena_exported, x, y, CH_UNIALIGN)
+#define dg_free_dg(x) ctags_arena_exported->free(ctags_arena_exported, x)
+
+
+#endif

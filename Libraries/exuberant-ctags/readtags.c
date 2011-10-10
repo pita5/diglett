@@ -130,13 +130,13 @@ static int growString (vstring *s)
 	if (s->size == 0)
 	{
 		newLength = 128;
-		newLine = (char*) malloc (newLength);
+		newLine = (char*) dg_malloc_dg (newLength);
 		*newLine = '\0';
 	}
 	else
 	{
 		newLength = 2 * s->size;
-		newLine = (char*) realloc (s->buffer, newLength);
+		newLine = (char*) dg_realloc_dg (s->buffer, newLength);
 	}
 	if (newLine == NULL)
 		perror ("string too large");
@@ -235,7 +235,7 @@ static tagResult growFields (tagFile *const file)
 	tagResult result = TagFailure;
 	unsigned short newCount = (unsigned short) 2 * file->fields.max;
 	tagExtensionField *newFields = (tagExtensionField*)
-			realloc (file->fields.list, newCount * sizeof (tagExtensionField));
+			dg_realloc_dg (file->fields.list, newCount * sizeof (tagExtensionField));
 	if (newFields == NULL)
 		perror ("too many extension fields");
 	else
@@ -439,18 +439,18 @@ static void gotoFirstLogicalTag (tagFile *const file)
 
 static tagFile *initialize (const char *const filePath, tagFileInfo *const info)
 {
-	tagFile *result = (tagFile*) calloc ((size_t) 1, sizeof (tagFile));
+	tagFile *result = (tagFile*) dg_calloc_dg ((size_t) 1, sizeof (tagFile));
 	if (result != NULL)
 	{
 		growString (&result->line);
 		growString (&result->name);
 		result->fields.max = 20;
-		result->fields.list = (tagExtensionField*) calloc (
+		result->fields.list = (tagExtensionField*) dg_calloc_dg (
 			result->fields.max, sizeof (tagExtensionField));
 		result->fp = fopen (filePath, "r");
 		if (result->fp == NULL)
 		{
-			free (result);
+			dg_free_dg (result);
 			result = NULL;
 			info->status.error_number = errno;
 		}
@@ -471,24 +471,24 @@ static void terminate (tagFile *const file)
 {
 	fclose (file->fp);
 
-	free (file->line.buffer);
-	free (file->name.buffer);
-	free (file->fields.list);
+	dg_free_dg (file->line.buffer);
+	dg_free_dg (file->name.buffer);
+	dg_free_dg (file->fields.list);
 
 	if (file->program.author != NULL)
-		free (file->program.author);
+		dg_free_dg (file->program.author);
 	if (file->program.name != NULL)
-		free (file->program.name);
+		dg_free_dg (file->program.name);
 	if (file->program.url != NULL)
-		free (file->program.url);
+		dg_free_dg (file->program.url);
 	if (file->program.version != NULL)
-		free (file->program.version);
+		dg_free_dg (file->program.version);
 	if (file->search.name != NULL)
-		free (file->search.name);
+		dg_free_dg (file->search.name);
 
 	memset (file, 0, sizeof (tagFile));
 
-	free (file);
+	dg_free_dg (file);
 }
 
 static tagResult readNext (tagFile *const file, tagEntry *const entry)
@@ -651,7 +651,7 @@ static tagResult find (tagFile *const file, tagEntry *const entry,
 {
 	tagResult result;
 	if (file->search.name != NULL)
-		free (file->search.name);
+		dg_free_dg (file->search.name);
 	file->search.name = duplicate (name);
 	file->search.nameLength = strlen (name);
 	file->search.partial = (options & TAG_PARTIALMATCH) != 0;
