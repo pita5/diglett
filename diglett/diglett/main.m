@@ -14,6 +14,8 @@ int main(int argc, const char * argv[])
 {
     setpriority(PRIO_PROCESS, getpid(), 19);
     
+    [NSRunLoop currentRunLoop];
+    
     DGController* controller = [DGController sharedController];
     [controller observeNotifs];
 
