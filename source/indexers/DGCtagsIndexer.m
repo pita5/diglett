@@ -62,7 +62,6 @@ void DGExCtag_PushTagEntry(void* const tag)
 }
 - (void)index {
     
-    NSLog(@"Index");
     // Get the language
     NSString *ctagsLanguage = [self ctagsLanguage];
     
@@ -77,16 +76,14 @@ void DGExCtag_PushTagEntry(void* const tag)
 
 - (void)parseFileContentsWithCtagsLanguage:(NSString *)ctagsLanguage
 {
-    NSLog(@"Parse file contents");
     // Put contents in a CHTemporaryFile
-    CHTemporaryFile *tempfile = [[CHTemporaryFile alloc] init];
+    CHTemporaryFile *tempfile = [[CHTemporaryFile alloc] initInDirectory:[NSTemporaryDirectory() stringByAppendingPathComponent:@"CHIndexTemps"]];
 	
     BOOL worked = NO;
     if (tempfile)
     {
         NSError *err = nil;
         worked = [contents writeToFile:tempfile.path atomically:NO encoding:NSUTF8StringEncoding error:&err];
-        NSLog(@"worked = %@ | %d", tempfile.path);
     }
     
     if (worked)
@@ -105,7 +102,7 @@ const struct arena_prototype* ctags_arena_exported;
 
 - (void)parseFilePath:(NSString *)inputPath withCtagsLanguage:(NSString *)ctagsLanguage finishedBlock:(dispatch_block_t)finishedBlock
 {  
-    NSLog(@"PARSE: %@ %@ %d", inputPath, ctagsLanguage, finishedBlock);
+//    NSLog(@"PARSE: %@ %@ %d", inputPath, ctagsLanguage, finishedBlock);
     
     
     static dispatch_queue_t DGCtagsQueue;
@@ -151,7 +148,6 @@ const struct arena_prototype* ctags_arena_exported;
         
         rv = [DGExCtag_TagEntryQueue copy];
         [DGExCtag_TagEntryQueue setCount:0];
-        NSLog(@"DGExCtag_TagEntryQueue KKKKKK = %d", [DGExCtag_TagEntryQueue count]);
         
         [self fillFrom:rv finishedBlock:finishedBlock];
         
@@ -165,7 +161,7 @@ const struct arena_prototype* ctags_arena_exported;
     __block int64_t pass_id = -1;
 	
     CHXMainDatabase *db = [project indexDB];
-    NSLog(@"FILL FROM: %d", [entries count]);
+//    NSLog(@"Adding n entries: %d", [entries count]);
     
 	dispatch_group_async([project indexingGroup], db.queue, ^{
 		if (!db.db)
@@ -193,7 +189,9 @@ const struct arena_prototype* ctags_arena_exported;
         }
         
         
+		[db.db executeUpdate:@"DELETE FROM symbols WHERE pass in (SELECT id FROM passes WHERE resource = ? AND generator_type = 'index' AND generator_name = 'ctags')", [NSNumber numberWithLongLong:rid]];
 		[db.db executeUpdate:@"DELETE FROM passes WHERE resource = ? AND generator_type = 'index' AND generator_name = 'ctags'", [NSNumber numberWithLongLong:rid]];
+		[db.db executeUpdate:@"DELETE FROM symbols WHERE pass not in (SELECT id FROM passes)"];
 		
 		[db.db executeUpdate:@"INSERT INTO passes (resource, timestamp, generator_type, generator_name) "
          @" VALUES (?, ?, 'index', 'ctags')",

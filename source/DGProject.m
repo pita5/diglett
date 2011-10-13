@@ -53,13 +53,21 @@ static const double delayBetweenSuccessful = 120;
         scanner.project = self;
         
         [self open];
-        [self makeSource];
+        
+        if ([args valueForKey:@"project_is_scanning"])
+            [self makeSource];
     }
     
     return self;
 }
 
 - (void)makeSource {
+    
+    if (isScanning)
+        return;
+    
+    isScanning = YES;
+    
     scannerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
     dispatch_source_set_event_handler(scannerSource, ^(void) {
         if ([NSDate timeIntervalSinceReferenceDate] - lastScanned > delayBetweenSuccessful) {
@@ -70,7 +78,7 @@ static const double delayBetweenSuccessful = 120;
         }
     });
     
-    dispatch_source_set_timer(scannerSource, dispatch_time(DISPATCH_TIME_NOW, (delayBetweenSuccessful / 2.0) * NSEC_PER_SEC), 0, 10);
+    dispatch_source_set_timer(scannerSource, dispatch_time(DISPATCH_TIME_NOW, 0), (delayBetweenSuccessful / 2.0) * NSEC_PER_SEC, 10 * NSEC_PER_SEC);
     dispatch_resume(scannerSource);
 }
 - (void)open {
@@ -93,12 +101,20 @@ static const double delayBetweenSuccessful = 120;
 }
 
 - (void)suspend {
+    if (!isScanning)
+        return;
+    
     // Suspend the scanner source
     dispatch_source_cancel(scannerSource);
     dispatch_release(scannerSource);
     scannerSource = NULL;
+    
+    isScanning = NO;
 }
 - (void)resume {
+    if (isScanning)
+        return;
+    
     if (!scannerSource) {
         [self makeSource];
     }
@@ -176,7 +192,6 @@ static const double delayBetweenSuccessful = 120;
     indexer.contents = contents;
     indexer.language = language;;
     indexer.rid = rid;
-    NSLog(@"indexer = %@", indexer);
     indexer.completionBlock = ^{
         
         

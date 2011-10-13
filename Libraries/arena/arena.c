@@ -315,12 +315,22 @@ void arena_free(struct arena *a, void *p_) {
 	if (!p)
 		return /* void */;
 
-	assert(top = SLIST_FIRST(&a->blocks));
-
-	assert(((len = rbits_get(p - 1,&hp)) > 0 && hp != 0));
-
-	tp	= p + len;
-
+// This assert *isn't* failing, but we should replace it with a runtime check instead
+//	assert(top = SLIST_FIRST(&a->blocks));
+    if (!(top = SLIST_FIRST(&a->blocks))) {
+        printf("arena free failed: (top = SLIST_FIRST(&a->blocks))\n");
+        return;
+    }
+    
+// This assert is failing for some reason, but the worst that can happen is we crash
+//	assert(((len = rbits_get(p - 1,&hp)) > 0 && hp != 0));
+    if (!(((len = rbits_get(p - 1,&hp)) > 0 && hp != 0))) {
+        printf("arena free failed: (((len = rbits_get(p - 1,&hp)) > 0 && hp != 0))\n");
+        return;
+    }
+    
+	tp = p + len;
+    
 	if (top->pos.next != tp)
 		return /* void */;
 

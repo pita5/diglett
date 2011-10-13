@@ -18,6 +18,11 @@
 
 #import "CHThreadNonLocal.h"
 
+static inline void doSleep(NSTimeInterval i) {
+    // Commenting this out in case it's causing the set_interrupts_enabled insane CPU usage
+    [NSThread sleepForTimeInterval:i];
+}
+
 static inline NSTimeInterval CHTimespecToTimeInterval(struct timespec ts)
 {
 	return (ts.tv_sec - NSTimeIntervalSince1970) + (ts.tv_nsec / 1000000000);
@@ -91,14 +96,13 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
         
         NSString *directory = dirpath;
         
-        NSLog(@"Scan directory: %@, database: %@", directory, database);
         NSString *dirpath = CHThreadNonLocal([directory stringByStandardizingPath]);
         directory = dirpath;
         
         // Is this a non local volume or removable media?
         if (!CHDirectoryShouldBeIndexed(dirpath))
         {
-            NSLog(@"Should not be indexed");
+//            NSLog(@"Should not be indexed");
             return;
         }
         
@@ -121,9 +125,7 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
         dispatch_sync(database.queue, ^{
             if (!database.db)
                 return;
-            
-            NSLog(@"databasePath : %@", [database.db databasePath]);
-            
+                        
             NSString *query = @"SELECT resources.path, resources.is_ignored, passes.timestamp, passes.generator_name"
             @"FROM resources LEFT JOIN passes ON passes.resource = resources.id"
             @"WHERE resources.path LIKE ? || '%'";
@@ -173,7 +175,7 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
                             
                             //NSLog(@"eq %d ?  diff %lf |  objc %lf |  stat %lf", fileTimestampDouble == fileTimestampDoubleStat, fileTimestampDoubleStat - fileTimestampDouble, fileTimestampDouble, fileTimestampDoubleStat);
                             
-                            NSLog(@"ZTZZTZ %d %lf %lf %lf\n %@", shouldPerformPass, fileTimestampDoubleStat, passTimestamp, fileTimestampDoubleStat - passTimestamp, resourcePath);
+//                            NSLog(@"ZTZZTZ %d %lf %lf %lf\n %@", shouldPerformPass, fileTimestampDoubleStat, passTimestamp, fileTimestampDoubleStat - passTimestamp, resourcePath);
                             if (fileTimestampDoubleStat > passTimestamp)
                                 shouldPerformPass = YES;
                         }
@@ -209,7 +211,7 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
         
         //NSLog(@"ignored = %@", allIgnoredPaths);
         //NSLog(@"nonignored =  %@", allNonignoredPaths);
-        NSLog(@"mappings = %@", passPathTimestampMappings);
+//        NSLog(@"mappings = %@", passPathTimestampMappings);
         
         NSDirectoryEnumerationOptions opts = 0;//NSDirectoryEnumerationSkipsSubdirectoryDescendants;
         if (!indexHiddenFiles)
@@ -274,7 +276,8 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
                 
                 //Add to resources
                 dispatch_sync(database.queue, ^{
-                    NSLog(@"Adding Resource | Name: %@ | Path: %@ | Language: %@ | Is Ignored? %@", absoluteName, absolutePath, language, (isIgnored ? @"Yes" : @"No")); 
+//                    NSLog(@"Adding Resource | Name: %@ | Path: %@ | Language: %@ | Is Ignored? %@", absoluteName, absolutePath, language, (isIgnored ? @"Yes" : @"No"));
+                    
                     [database.db executeUpdate:@"INSERT INTO resources (name, path, language, is_ignored) VALUES (?, ?, ?, ?)", absoluteName, absolutePath, language, [NSNumber numberWithBool:isIgnored]];
                     rid = [database.db lastInsertRowId];
                 });
@@ -302,7 +305,7 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
                         
                         //Pretty sure this is undefined behaviour...
                         if (shouldSlowDown)
-                            [NSThread sleepForTimeInterval:slowdown];
+                            doSleep(slowdown);
                     }
                 }
                 
@@ -352,7 +355,7 @@ static BOOL CHDirectoryShouldBeIndexed(NSString *dirpath)
                             indexingCompletionBlock(((CGFloat)indexI) / ((CGFloat)maximum), NO);
                         
                         if (shouldSlowDown)
-                            [NSThread sleepForTimeInterval:slowdown];
+                            doSleep(slowdown);
                     }
                 }
             }

@@ -9,6 +9,8 @@
 #import "DGController.h"
 #import "DGProject.h"
 
+// #define DIGLETT_DEBUG_MODE
+
 @implementation DGController
 
 + (id)sharedController {
@@ -34,6 +36,9 @@
 - (void)registerForProcessQuit {
     dispatch_source_t s = dispatch_source_create(DISPATCH_SOURCE_TYPE_PROC, getppid(), DISPATCH_PROC_EXIT, dispatch_get_global_queue(0, 0));
     dispatch_source_set_event_handler(s, ^(void) {
+        if ([NSTemporaryDirectory() length])
+            [[NSFileManager defaultManager] removeItemAtPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"CHIndexTemps"] error:nil];
+            
         kill(getpid(), 9);
     });
     dispatch_resume(s);
@@ -82,9 +87,12 @@
         [[NSDistributedNotificationCenter defaultCenter] addObserver:self
                                                             selector:@selector(didReceiveNotification:)
                                                                 name:@"CHDiglett"//notifName
-                                                              object:[NSString stringWithFormat:@"diglett-ld", getppid()]];
-        
-//    }
+#ifdef DIGLETT_DEBUG_MODE
+    object:[NSString stringWithFormat:@"diglett-ld", getppid()]];
+#else
+    object:[NSString stringWithFormat:@"diglett-%ld", getppid()]];
+#endif
+    //    }
     //[[NSDistributedNotificationCenter defaultCenter] setSuspended:NO];
 }
 - (void)reobserveNotifs {
@@ -152,6 +160,7 @@
     [projectMap removeObjectForKey:[self projectForMessageArgs:args]];
 }
 - (void)file_index:(NSDictionary *)args { // { path, project_identifier, unique_job_identifier, unique_job_timestamp, contents, language }
+    
     //Force diglett to index a file, ignoring its representation on disk, and instead taking a contents string
     DGProject *proj = [self projectForMessageArgs:args];
     if (!proj) {
@@ -159,7 +168,9 @@
         proj = [self projectForMessageArgs:args];
     }
     
-    //NSLog(@"[self projectForMessageArgs:args] = %@", proj);
+//    NSLog(@"[self projectForMessageArgs:args] = %@", proj);
+//    NSLog(@"proj = %@", proj);
+//    NSLog(@"args = %@", args);
     [proj forceIndexFile:[args valueForKey:@"path"] args:args];
 }
 

@@ -25,6 +25,8 @@
     dispatch_source_t scannerSource;
     
     NSTimeInterval lastScanned;
+    
+    BOOL isScanning;
 }
 
 @property (readonly) NSString *directory;
