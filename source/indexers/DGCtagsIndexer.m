@@ -179,6 +179,8 @@ const struct arena_prototype* ctags_arena_exported;
                 idx = [db.db longForQuery:@"SELECT id FROM resources WHERE path = ?", self.path];
             
             if (idx <= 0) {
+                [db.db executeUpdate:@"DELETE FROM resources WHERE path = ?", [[self path] lastPathComponent] ?: @""];
+                
                 [db.db executeUpdate:@"INSERT INTO resources (name, path, language, is_ignored) VALUES (?, ?, ?, ?)", [[self path] lastPathComponent] ?: @"", self.path ?: @"", language, [NSNumber numberWithBool:NO]];
                 
                 idx = [db.db lastInsertRowId];
