@@ -93,7 +93,7 @@ static const double delayBetweenSuccessful = 120;
         lastScanned = [NSDate timeIntervalSinceReferenceDate];
     }
     
-    [[DGController sharedController] didScanIndexFile:path index:index ofTotal:total];
+    [[DGController sharedController] didScanIndexFile:path project:self index:index ofTotal:total];
 }
 
 - (void)watcherDidNotifyForDirectory:(NSString *)directoryPath {

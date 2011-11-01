@@ -176,8 +176,22 @@
 
 #pragma mark Messages from Diglett => Chocolat
 
-- (void)didScanIndexFile:(NSString *)path index:(NSInteger)index ofTotal:(NSInteger)total {
+- (void)didScanIndexFile:(NSString *)path project:(DGProject *)proj index:(NSInteger)index ofTotal:(NSInteger)total {
     
+    // If this is not a final thing
+    if (index != total && total != 0 && floor(((double)total) / 100) > 1) {
+        if (((int)index % (int)floor(((double)total) / 100)) != 0) {
+            return;
+        }
+    }
+    
+    NSMutableDictionary *messageUserInfo = [NSMutableDictionary dictionary];
+    
+    [messageUserInfo setValue:path ?: @"" forKey:@"path"];
+    [messageUserInfo setValue:[NSNumber numberWithInteger:index] forKey:@"index"];
+    [messageUserInfo setValue:[NSNumber numberWithInteger:total] forKey:@"total"];
+    
+    [self sendChocolatMessage:@"chocolat.file-did-index" project:proj dictionary:messageUserInfo];
 }
 
 - (void)send_file_did_index:(NSDictionary *)args { // { path, project_identifier, unique_job_identifier, unique_job_timestamp, language }
@@ -186,6 +200,23 @@
 
 - (void)send_project_is_indexing:(NSDictionary *)args { // 
     // Sent while the project is being indexed
+}
+
+- (void)sendChocolatMessage:(NSString *)msg project:(DGProject *)project dictionary:(NSDictionary *)dict {
+    
+    NSMutableDictionary *messageUserInfo = [NSMutableDictionary dictionary];
+    
+    if ([project identifier])
+        [messageUserInfo setValue:[project identifier] forKey:@"project_identifier"];
+    if ([project directory])
+        [messageUserInfo setValue:[project directory] forKey:@"project_directory"];
+    if ([project indexDBPath])
+        [messageUserInfo setValue:[project indexDBPath] forKey:@"project_index_database"];
+    
+    [messageUserInfo addEntriesFromDictionary:dict];
+    
+    [[NSDistributedNotificationCenter defaultCenter] postNotificationName:msg object:[NSString stringWithFormat:@"chocolat-%ld", getppid()] userInfo:messageUserInfo];
+
 }
 
 

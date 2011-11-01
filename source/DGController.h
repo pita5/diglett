@@ -47,7 +47,8 @@
 
 #pragma mark Messages from Diglett => Chocolat
 
-- (void)didScanIndexFile:(NSString *)path index:(NSInteger)index ofTotal:(NSInteger)total;
+- (void)didScanIndexFile:(NSString *)path project:(DGProject *)proj index:(NSInteger)index ofTotal:(NSInteger)total;
+- (void)sendChocolatMessage:(NSString *)msg project:(DGProject *)proj dictionary:(NSDictionary *)dict;
 
 - (void)send_file_did_index:(NSDictionary *)args; // { path, project_identifier, unique_job_identifier, unique_job_timestamp, language }
 //Sent after a file.index has finished. Prompts Chocolat to refresh the Navigator, etc.
