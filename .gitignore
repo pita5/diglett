@@ -8,6 +8,8 @@ build/*
 xcuserdata
 xcuserdata/
 xcuserdata/*
+DerivedData/
+DerivedData/*
 
 ctags-5.8
 ctags-other-shit

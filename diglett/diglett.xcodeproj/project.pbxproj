@@ -472,6 +472,7 @@
 		7573E2BC1433CC0900846BA9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 0420;
 				ORGANIZATIONNAME = Fileability;
 			};
 			buildConfigurationList = 7573E2BF1433CC0900846BA9 /* Build configuration list for PBXProject "diglett" */;
