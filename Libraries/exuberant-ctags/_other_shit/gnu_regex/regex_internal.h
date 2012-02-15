@@ -18,6 +18,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define CHAR_BIT 8
+
 #ifndef _REGEX_INTERNAL_H
 #define _REGEX_INTERNAL_H 1
 

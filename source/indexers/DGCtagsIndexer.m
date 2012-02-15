@@ -58,6 +58,11 @@ void DGExCtag_PushTagEntry(void* const tag)
     return self;
 }
 - (NSString *)ctagsLanguage {
+    if ([[language lowercaseString] isEqual:@"html"])
+        return @"php";
+    if ([[language lowercaseString] isEqual:@"objective-c"])
+        return @"objc";
+    
     return language;
 }
 - (void)index {
@@ -114,7 +119,7 @@ const struct arena_prototype* ctags_arena_exported;
     dispatch_group_async([project indexingGroup], DGCtagsQueue, ^{
         
         NSPointerArray* rv = nil;
-       
+        NSLog(@"[ctagsLanguage lowercaseString] = %@", [ctagsLanguage lowercaseString]);
         const char * args[] = {
             "ctags",
             "--extra=+fq",

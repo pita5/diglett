@@ -5,6 +5,9 @@
 #ifndef PREFIXH
 #define PREFIXH
 
+#define HAVE_REGEX
+#define HAVE_REGCOMP
+
 
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>

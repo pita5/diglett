@@ -18,6 +18,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define __USE_GNU
+#define HAVE_REGCOMP
+#define bool int
+#define false 0
+#define true 1
+//#define strcasecmp stricmp
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

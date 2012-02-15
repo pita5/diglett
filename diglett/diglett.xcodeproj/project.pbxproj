@@ -11,6 +11,7 @@
 		751337F814435ED8002DB22D /* pool.c in Sources */ = {isa = PBXBuildFile; fileRef = 751337EF14435ED8002DB22D /* pool.c */; };
 		751337F914435ED8002DB22D /* proto.c in Sources */ = {isa = PBXBuildFile; fileRef = 751337F114435ED8002DB22D /* proto.c */; };
 		751337FA14435ED8002DB22D /* util.c in Sources */ = {isa = PBXBuildFile; fileRef = 751337F514435ED8002DB22D /* util.c */; };
+		756804B414E3494400C3EB3B /* regex.c in Sources */ = {isa = PBXBuildFile; fileRef = 756804AF14E3494300C3EB3B /* regex.c */; };
 		756A3D49143CFF3600936C8C /* DGCtagsIndexerC.m in Sources */ = {isa = PBXBuildFile; fileRef = 756A3D48143CFF3500936C8C /* DGCtagsIndexerC.m */; };
 		756A3D4C143F699A00936C8C /* ctags_globals.c in Sources */ = {isa = PBXBuildFile; fileRef = 756A3D4B143F699700936C8C /* ctags_globals.c */; };
 		7573E2CA1433CC0A00846BA9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7573E2C91433CC0A00846BA9 /* Foundation.framework */; };
@@ -114,6 +115,12 @@
 		751337F414435ED8002DB22D /* rbits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rbits.h; path = ../../Libraries/arena/rbits.h; sourceTree = "<group>"; };
 		751337F514435ED8002DB22D /* util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = util.c; path = ../../Libraries/arena/util.c; sourceTree = "<group>"; };
 		751337F614435ED8002DB22D /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = ../../Libraries/arena/util.h; sourceTree = "<group>"; };
+		756804AC14E3494300C3EB3B /* regcomp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = regcomp.c; path = "../Libraries/exuberant-ctags/_other_shit/gnu_regex/regcomp.c"; sourceTree = "<group>"; };
+		756804AD14E3494300C3EB3B /* regex_internal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = regex_internal.c; path = "../Libraries/exuberant-ctags/_other_shit/gnu_regex/regex_internal.c"; sourceTree = "<group>"; };
+		756804AE14E3494300C3EB3B /* regex_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = regex_internal.h; path = "../Libraries/exuberant-ctags/_other_shit/gnu_regex/regex_internal.h"; sourceTree = "<group>"; };
+		756804AF14E3494300C3EB3B /* regex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = regex.c; path = "../Libraries/exuberant-ctags/_other_shit/gnu_regex/regex.c"; sourceTree = "<group>"; };
+		756804B014E3494300C3EB3B /* regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = regex.h; path = "../Libraries/exuberant-ctags/_other_shit/gnu_regex/regex.h"; sourceTree = "<group>"; };
+		756804B114E3494300C3EB3B /* regexec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = regexec.c; path = "../Libraries/exuberant-ctags/_other_shit/gnu_regex/regexec.c"; sourceTree = "<group>"; };
 		756A3D47143CFF3500936C8C /* DGCtagsIndexerC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DGCtagsIndexerC.h; sourceTree = "<group>"; };
 		756A3D48143CFF3500936C8C /* DGCtagsIndexerC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DGCtagsIndexerC.m; sourceTree = "<group>"; };
 		756A3D4B143F699700936C8C /* ctags_globals.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ctags_globals.c; path = indexers/ctags_globals.c; sourceTree = "<group>"; };
@@ -247,6 +254,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		756804B614E3496A00C3EB3B /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+				756804AC14E3494300C3EB3B /* regcomp.c */,
+				756804AD14E3494300C3EB3B /* regex_internal.c */,
+				756804AE14E3494300C3EB3B /* regex_internal.h */,
+				756804AF14E3494300C3EB3B /* regex.c */,
+				756804B014E3494300C3EB3B /* regex.h */,
+				756804B114E3494300C3EB3B /* regexec.c */,
+			);
+			name = "New Group";
+			sourceTree = "<group>";
+		};
 		7573E2BA1433CC0900846BA9 = {
 			isa = PBXGroup;
 			children = (
@@ -428,6 +448,7 @@
 				7573E3C81434BB3A00846BA9 /* vstring.c */,
 				7573E3C91434BB3A00846BA9 /* vstring.h */,
 				7573E3CA1434BB3A00846BA9 /* yacc.c */,
+				756804B614E3496A00C3EB3B /* New Group */,
 			);
 			name = ctags;
 			sourceTree = "<group>";
@@ -573,6 +594,7 @@
 				751337F814435ED8002DB22D /* pool.c in Sources */,
 				751337F914435ED8002DB22D /* proto.c in Sources */,
 				751337FA14435ED8002DB22D /* util.c in Sources */,
+				756804B414E3494400C3EB3B /* regex.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -637,6 +659,7 @@
 		7573E2D51433CC0A00846BA9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_ENABLE_OBJC_GC = required;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "diglett/diglett-Prefix.pch";
@@ -647,6 +670,7 @@
 		7573E2D61433CC0A00846BA9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_ENABLE_OBJC_GC = required;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "diglett/diglett-Prefix.pch";
