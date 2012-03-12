@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #import "DGController.h"
+#import "watchdog.h"
 
 int main(int argc, const char * argv[])
 {
@@ -19,6 +20,7 @@ int main(int argc, const char * argv[])
     DGController* controller = [DGController sharedController];
     [controller observeNotifs];
 
+    watchd_poll(6, watchd_client_refresh_file);
     [[NSRunLoop currentRunLoop] run];
     return 0;
 }
