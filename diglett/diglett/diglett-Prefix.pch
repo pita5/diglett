@@ -8,6 +8,10 @@
 #define HAVE_REGEX
 #define HAVE_REGCOMP
 
+// If you comment this out, diglett will hang sometimes.
+// It's a long story.
+#define NSLog(...)
+
 
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
